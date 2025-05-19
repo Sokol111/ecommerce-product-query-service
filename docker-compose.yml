@@ -1,0 +1,16 @@
+version: '3'
+
+services:
+  prodqueryserv:
+    image: sokol111/ecommerce-product-query-service:latest
+    container_name: prodqueryserv
+    ports:
+      - 8080:8080
+    networks:
+      - shared-network
+    environment:
+      - MONGO_HOST=mongo
+
+networks:
+  shared-network:
+    external: true

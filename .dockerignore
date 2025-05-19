@@ -1,0 +1,9 @@
+*
+
+!api/api.gen.go
+!cmd
+!configs
+!internal
+!pkg
+!go.mod
+!go.sum

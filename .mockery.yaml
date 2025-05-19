@@ -1,0 +1,12 @@
+with-expecter: true
+filename: "mock_{{.PackageName | snakecase}}_{{.InterfaceName | snakecase}}.go"
+dir: "test/mocks"
+outpkg: "mocks"
+packages:
+  github.com/Sokol111/ecommerce-category-service/internal/category:
+    interfaces:
+      collection:
+      Store:
+  github.com/Sokol111/ecommerce-category-service/pkg/category:
+    interfaces:
+      Service:

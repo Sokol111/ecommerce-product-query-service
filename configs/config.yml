@@ -14,5 +14,10 @@ kafka:
   consumers:
     - handler: "productCreatedHandler"
       topic: "catalog.product.created.v1"
-      group-id: "product-query"
+      group-id: "ecommerse-product-query-service"
+      auto-offset-reset: "earliest"
+  consumers:
+    - handler: "productUpdatedHandler"
+      topic: "catalog.product.updated.v1"
+      group-id: "ecommerse-product-query-service"
       auto-offset-reset: "earliest"

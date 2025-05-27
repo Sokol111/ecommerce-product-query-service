@@ -8,3 +8,11 @@ mongo:
 #  username: "root"
 #  password: "password"
   database: "product-query"
+
+kafka:
+  brokers: "localhost:9092"
+  consumers:
+    - handler: "productCreatedHandler"
+      topic: "catalog.product.created.v1"
+      group-id: "product-query"
+      auto-offset-reset: "earliest"

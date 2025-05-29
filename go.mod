@@ -9,11 +9,13 @@ require (
 	go.uber.org/zap v1.26.0
 )
 
+require github.com/joho/godotenv v1.5.1 // indirect
+
 require (
 	github.com/bytedance/sonic v1.13.2 // indirect
 	github.com/bytedance/sonic/loader v0.2.4 // indirect
 	github.com/cloudwego/base64x v0.1.5 // indirect
-	github.com/confluentinc/confluent-kafka-go/v2 v2.10.0
+	github.com/confluentinc/confluent-kafka-go/v2 v2.10.0 // indirect
 	github.com/dprotaso/go-yit v0.0.0-20220510233725-9ba8df137936 // indirect
 	github.com/fsnotify/fsnotify v1.8.0 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.9 // indirect

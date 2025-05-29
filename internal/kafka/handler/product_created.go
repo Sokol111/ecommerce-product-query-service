@@ -14,6 +14,19 @@ type productCreatedHandler struct {
 	log *zap.Logger
 }
 
+// func ProvideProductCreatedConsumer(
+// 	lc fx.Lifecycle,
+// 	log *zap.Logger,
+// 	conf config.Config,
+// 	handler consumer.Handler[payload.ProductCreated],
+// ) (consumer.Consumer, error) {
+// 	c, err := consumer.ProvideNewConsumer(lc, log, conf, handler, "productCreatedHandler")
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	return consumer.Consumer(c), nil
+// }
+
 func NewProductCreatedHandler(log *zap.Logger) consumer.Handler[payload.ProductCreated] {
 	return &productCreatedHandler{
 		log: log,

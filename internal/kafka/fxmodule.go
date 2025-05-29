@@ -7,7 +7,26 @@ import (
 	"go.uber.org/fx"
 )
 
+// var HandlersModule = fx.Options(
+// 	fx.Provide(
+// 		handler.NewProductCreatedHandler,
+// 	),
+// 	fx.Provide(
+// 		fx.Annotate(
+// 			handler.ProvideProductCreatedConsumer,
+// 			fx.ResultTags(`group:"consumers"`),
+// 		),
+// 	),
+// 	fx.Invoke(
+// 		fx.Annotate(
+// 			func(consumers []consumer.Consumer, log *zap.Logger) {
+// 				log.Info("Kafka consumers initialized", zap.Int("len", len(consumers)))
+// 			},
+// 			fx.ParamTags(`group:"consumers"`),
+// 		),
+// 	),
+// )
+
 var HandlersModule = fx.Options(
 	consumer.RegisterHandlerAndConsumer[payload.ProductCreated]("productCreatedHandler", handler.NewProductCreatedHandler),
-	consumer.RegisterHandlerAndConsumer[payload.ProductUpdated]("productUpdatedHandler", handler.NewProductUpdatedHandler),
 )

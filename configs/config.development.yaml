@@ -1,0 +1,22 @@
+server:
+  port: 8080
+
+mongo:
+  host: "localhost"
+  port: 27017
+  replica-set: rs0
+#  username: "root"
+#  password: "password"
+  database: "product-query"
+
+kafka:
+  brokers: "localhost:9092"
+  consumers:
+    - handler: "productCreatedHandler"
+      topic: "catalog.product.created.v1"
+      group-id: "ecommerse-product-query-service"
+      auto-offset-reset: "earliest"
+    - handler: "productUpdatedHandler"
+      topic: "catalog.product.updated.v1"
+      group-id: "ecommerse-product-query-service"
+      auto-offset-reset: "earliest"

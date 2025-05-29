@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 
-	"github.com/Sokol111/ecommerce-commons/pkg/kafka/config"
 	"github.com/Sokol111/ecommerce-commons/pkg/module"
 	"github.com/Sokol111/ecommerce-product-query-service/internal/kafka"
 	"go.uber.org/fx"
@@ -12,7 +11,7 @@ import (
 
 var AppModules = fx.Options(
 	module.InfraModules,
-	config.KafkaConfigModule,
+	module.KafkaModule,
 	kafka.HandlersModule,
 )
 

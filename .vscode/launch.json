@@ -8,10 +8,12 @@
             "name": "Launch cmd/main.go",
             "type": "go",
             "request": "launch",
-            "mode": "auto",
+            "mode": "debug",
             "program": "${workspaceFolder}/cmd",
             "cwd": "${workspaceFolder}",
-            "env": {},
+            "env": {
+                "PATH": "/usr/local/go/bin:/home/ihsokolo/go/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            },
             "args": []
         }
     ]

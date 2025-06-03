@@ -14,7 +14,7 @@ type productUpdatedHandler struct {
 	log *zap.Logger
 }
 
-func NewProductUpdatedHandler(log *zap.Logger) consumer.Handler[payload.ProductUpdated] {
+func newProductUpdatedHandler(log *zap.Logger) consumer.Handler[payload.ProductUpdated] {
 	return &productUpdatedHandler{
 		log: log,
 	}

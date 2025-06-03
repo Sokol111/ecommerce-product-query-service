@@ -1,4 +1,4 @@
-.PHONY: generate generate-mocks build-docker-image start-docker-compose stop-docker-compose update-dependencies test
+.PHONY: generate generate-mocks build-docker-image start-docker-compose stop-docker-compose update-dependencies test init-git
 
 generate:
 	go generate ./...
@@ -20,3 +20,8 @@ update-dependencies:
 
 test:
 	go test ./... -v -cover
+
+init-git:
+	git config user.name "Sokol111"
+	git config user.email "igorsokol111@gmail.com"
+	git config commit.gpgSign false

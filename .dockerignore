@@ -1,6 +1,5 @@
 *
 
-!api/api.gen.go
 !cmd
 !configs
 !internal

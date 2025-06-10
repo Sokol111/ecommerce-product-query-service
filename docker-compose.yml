@@ -1,15 +1,18 @@
-version: '3'
-
 services:
   prodqueryserv:
-    image: sokol111/ecommerce-product-query-service:latest
+    image: sokol111/${PROJECT_NAME}:latest
     container_name: prodqueryserv
     ports:
-      - 8080:8080
+      - 8081:8080
+    labels:
+      - "traefik.http.routers.prodqueryserv.rule=Host(`${PROJECT_NAME}.localhost`)"
+      - "traefik.http.services.prodqueryserv.loadbalancer.server.port=8080"
     networks:
       - shared-network
     environment:
+      - APP_ENV=development
       - MONGO_HOST=mongo
+      - KAFKA_BROKERS=kafka:29092
 
 networks:
   shared-network:

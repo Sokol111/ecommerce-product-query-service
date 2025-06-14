@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/Sokol111/ecommerce-commons/pkg/module"
-	"github.com/Sokol111/ecommerce-product-query-service/internal/kafka/handler"
+	"github.com/Sokol111/ecommerce-product-query-service/internal/kafka"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 )
@@ -12,7 +12,7 @@ import (
 var AppModules = fx.Options(
 	module.NewInfraModule(),
 	module.NewKafkaModule(),
-	handler.NewHandlersModule(),
+	kafka.NewHandlersModule(),
 )
 
 func main() {

@@ -1,4 +1,4 @@
-package handler
+package kafka
 
 import (
 	"github.com/Sokol111/ecommerce-commons/pkg/event/payload"

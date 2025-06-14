@@ -1,4 +1,4 @@
-package handler
+package kafka
 
 import (
 	"context"
@@ -10,21 +10,21 @@ import (
 	"go.uber.org/zap"
 )
 
-type productCreatedHandler struct {
+type productUpdatedHandler struct {
 	log *zap.Logger
 }
 
-func newProductCreatedHandler(log *zap.Logger) consumer.Handler[payload.ProductCreated] {
-	return &productCreatedHandler{
+func newProductUpdatedHandler(log *zap.Logger) consumer.Handler[payload.ProductUpdated] {
+	return &productUpdatedHandler{
 		log: log,
 	}
 }
 
-func (h *productCreatedHandler) Process(ctx context.Context, e *event.Event[payload.ProductCreated]) error {
+func (h *productUpdatedHandler) Process(ctx context.Context, e *event.Event[payload.ProductUpdated]) error {
 	h.log.Info("message received", zap.String("message", fmt.Sprintf("%v", e)))
 	return nil
 }
 
-func (h *productCreatedHandler) Validate(payload *payload.ProductCreated) error {
+func (h *productUpdatedHandler) Validate(payload *payload.ProductUpdated) error {
 	return nil
 }

@@ -1,12 +1,17 @@
-with-expecter: true
-filename: "mock_{{.PackageName | snakecase}}_{{.InterfaceName | snakecase}}.go"
+filename: "mock_{{.SrcPackageName | snakecase}}_{{.InterfaceName | snakecase}}.go"
 dir: "test/mocks"
-outpkg: "mocks"
+pkgname: "mocks"
 packages:
-  github.com/Sokol111/ecommerce-category-service/internal/category:
+  github.com/Sokol111/ecommerce-product-query-service/internal/product:
     interfaces:
       collection:
+        config:
+          structname: MockProductCollection
       Store:
-  github.com/Sokol111/ecommerce-category-service/pkg/category:
+        config:
+          structname: MockProductStore
+  github.com/Sokol111/ecommerce-product-query-service/pkg/product:
     interfaces:
       Service:
+        config:
+          structname: MockProductService

@@ -10,7 +10,7 @@ packages:
       Store:
         config:
           structname: MockProductStore
-  github.com/Sokol111/ecommerce-product-query-service/pkg/product:
+  github.com/Sokol111/ecommerce-product-query-service/internal/model:
     interfaces:
       Service:
         config:

@@ -13,7 +13,6 @@ permissions:
 
 jobs:
   release:
-    needs: prepare
     uses: Sokol111/ecommerce-infrastructure/.github/workflows/build-and-release-go.yml@master
     secrets:
       DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}

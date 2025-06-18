@@ -12,21 +12,8 @@ permissions:
   contents: write
 
 jobs:
-  prepare:
-    runs-on: ubuntu-latest
-    outputs:
-      version: ${{ steps.get_version.outputs.version }}
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      - name: Read version from file
-        id: get_version
-        run: echo "version=v$(cat VERSION)" >> $GITHUB_OUTPUT
-
   release:
     needs: prepare
     uses: Sokol111/ecommerce-infrastructure/.github/workflows/build-and-release-go.yml@master
-    with:
-      version: ${{ needs.prepare.outputs.version }}
     secrets:
       DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}

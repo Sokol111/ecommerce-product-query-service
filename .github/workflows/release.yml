@@ -6,24 +6,27 @@ on:
       - master
     paths:
       - VERSION
+  workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
-  release:
+  prepare:
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.get_version.outputs.version }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
       - name: Read version from file
         id: get_version
-        run: echo "version=$(cat VERSION)" >> $GITHUB_OUTPUT
-        
-      - name: Call release workflow
-        uses: Sokol111/ecommerce-infrastructure/.github/workflows/build-and-release-go.yml@master
-        with:
-          version: ${{ steps.get_version.outputs.version }}
-        secrets:
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+        run: echo "version=v$(cat VERSION)" >> $GITHUB_OUTPUT
+
+  release:
+    needs: prepare
+    uses: Sokol111/ecommerce-infrastructure/.github/workflows/build-and-release-go.yml@master
+    with:
+      version: ${{ needs.prepare.outputs.version }}
+    secrets:
+      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}

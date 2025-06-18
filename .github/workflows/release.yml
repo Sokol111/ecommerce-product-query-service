@@ -1,20 +1,29 @@
 name: Release
 
 on:
-  workflow_dispatch:
-    inputs:
-      version:
-        description: "Version"
-        required: true
-        type: string
+  push:
+    branches:
+      - master
+    paths:
+      - VERSION
 
 permissions:
   contents: write
 
 jobs:
   release:
-    uses: Sokol111/ecommerce-infrastructure/.github/workflows/build-and-release-go.yml@master
-    with:
-      version: ${{ github.event.inputs.version }}
-    secrets:
-      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Read version from file
+        id: get_version
+        run: echo "version=$(cat VERSION)" >> $GITHUB_OUTPUT
+        
+      - name: Call release workflow
+        uses: Sokol111/ecommerce-infrastructure/.github/workflows/build-and-release-go.yml@master
+        with:
+          version: ${{ steps.get_version.outputs.version }}
+        secrets:
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}

@@ -6,7 +6,7 @@ import (
 	"go.uber.org/fx"
 )
 
-func NewHandlersModule() fx.Option {
+func NewKafkaHandlerModule() fx.Option {
 	return fx.Options(
 		consumer.RegisterHandlerAndConsumer[payload.ProductCreated]("productCreatedHandler", newProductCreatedHandler),
 		consumer.RegisterHandlerAndConsumer[payload.ProductUpdated]("productUpdatedHandler", newProductUpdatedHandler),

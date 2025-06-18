@@ -1,4 +1,4 @@
-package categorylist
+package productdetail
 
 import (
 	"context"
@@ -8,6 +8,8 @@ import (
 )
 
 type collection interface {
+	FindOne(ctx context.Context, filter interface{}, opts ...*options.FindOneOptions) *mongo.SingleResult
+
 	Find(ctx context.Context, filter interface{}, opts ...*options.FindOptions) (cur *mongo.Cursor, err error)
 
 	UpdateOne(ctx context.Context, filter interface{}, update interface{}, opts ...*options.UpdateOptions) (*mongo.UpdateResult, error)

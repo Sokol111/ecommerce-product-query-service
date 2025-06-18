@@ -1,22 +1,25 @@
-package categorylist
+package productdetail
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
-	"github.com/Sokol111/ecommerce-category-query-service/internal/model"
 	"github.com/Sokol111/ecommerce-commons/pkg/logger"
 	"github.com/Sokol111/ecommerce-commons/pkg/mongo"
 	"github.com/Sokol111/ecommerce-product-query-service/internal/model"
 	"go.mongodb.org/mongo-driver/bson"
+	mongodriver "go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.uber.org/zap"
 )
 
+var errEntityNotFound = errors.New("entity not found in database")
+
 type Store interface {
 	Upsert(ctx context.Context, id string, name string, price float32, quantity int, version int, enabled bool) error
 
-	GetAllEnabled(ctx context.Context) (*model.CategoryListViewDTO, error)
+	GetById(ctx context.Context, id string) (*model.ProductDTO, error)
 }
 
 type store struct {
@@ -53,27 +56,28 @@ func (s *store) Upsert(ctx context.Context, id string, name string, price float3
 	return nil
 }
 
-func (s *store) GetAllEnabled(ctx context.Context) (*model.CategoryListViewDTO, error) {
-	cursor, err := s.wrapper.Coll.Find(ctx, bson.M{"enabled": true})
+func (s *store) GetById(ctx context.Context, id string) (*model.ProductDTO, error) {
+	result := s.wrapper.Coll.FindOne(ctx, bson.D{{Key: "_id", Value: id}})
+	var doc struct {
+		ID       string  `bson:"_id"`
+		Name     string  `bson:"name"`
+		Price    float32 `bson:"price"`
+		Quantity int     `bson:"quantity"`
+	}
+	err := result.Decode(&doc)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get active categories: %w", err)
+		if errors.Is(err, mongodriver.ErrNoDocuments) {
+			return nil, fmt.Errorf("failed to get product [%v]: %w", id, errEntityNotFound)
+		}
+		return nil, fmt.Errorf("failed to get product [%v]: decode error: %w", id, err)
 	}
-	defer cursor.Close(ctx)
 
-	var categories []model.CategoryDTO
-	for cursor.Next(ctx) {
-		var doc struct {
-			ID       string  `bson:"_id"`
-			Name     string  `bson:"name"`
-			Price    float32 `bson:"price"`
-			Quantity int     `bson:"quantity"`
-		}
-		if err := cursor.Decode(&doc); err != nil {
-			return nil, fmt.Errorf("failed to decode category: %w", err)
-		}
-		categories = append(categories, model.CategoryDTO{ID: doc.ID, Name: doc.Name, Price: doc.Price, Quantity: doc.Quantity})
-	}
-	return &model.ProductDTO{Categories: categories}, nil
+	return &model.ProductDTO{
+		ID:       doc.ID,
+		Name:     doc.Name,
+		Price:    doc.Price,
+		Quantity: doc.Quantity,
+	}, nil
 }
 
 func (s *store) log(ctx context.Context) *zap.Logger {

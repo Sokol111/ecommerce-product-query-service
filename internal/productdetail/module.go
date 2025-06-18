@@ -1,4 +1,4 @@
-package categorylist
+package productdetail
 
 import (
 	"context"

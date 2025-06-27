@@ -2,15 +2,13 @@ server:
   port: 8080
 
 mongo:
-  host: "localhost"
+  host: ""
   port: 27017
   replica-set: rs0
-  #  username: "root"
-  #  password: "password"
   database: "product-query"
 
 kafka:
-  brokers: "localhost:9092"
+  brokers: ""
   consumers-config:
     group-id: "ecommerce-product-query-service"
     auto-offset-reset: "earliest"

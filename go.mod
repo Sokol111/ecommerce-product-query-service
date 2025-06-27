@@ -3,7 +3,7 @@ module github.com/Sokol111/ecommerce-product-query-service
 go 1.24.2
 
 require (
-	github.com/Sokol111/ecommerce-commons v0.1.29
+	github.com/Sokol111/ecommerce-commons v0.1.30
 	github.com/Sokol111/ecommerce-product-query-service-api v1.0.5
 	github.com/gin-gonic/gin v1.10.1
 	go.mongodb.org/mongo-driver v1.17.4

@@ -3,7 +3,7 @@ services:
     image: sokol111/${PROJECT_NAME}:latest
     container_name: prodqserv
     labels:
-      - "traefik.http.routers.prodqserv.rule=Host(`${PROJECT_NAME}.localhost`)"
+      - "traefik.http.routers.prodqserv.rule=Host(`${PROJECT_NAME}.test`)"
       - "traefik.http.services.prodqserv.loadbalancer.server.port=8080"
     networks:
       - shared-network

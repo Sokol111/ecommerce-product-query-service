@@ -2,27 +2,25 @@ package kafka
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/Sokol111/ecommerce-commons/pkg/event"
 	"github.com/Sokol111/ecommerce-commons/pkg/event/payload"
 	"github.com/Sokol111/ecommerce-commons/pkg/kafka/consumer"
-	"go.uber.org/zap"
+	"github.com/Sokol111/ecommerce-product-query-service/internal/model"
 )
 
 type productCreatedHandler struct {
-	log *zap.Logger
+	productDetailService model.ProductDetailService
 }
 
-func newProductCreatedHandler(log *zap.Logger) consumer.Handler[payload.ProductCreated] {
+func newProductCreatedHandler(productDetailService model.ProductDetailService) consumer.Handler[payload.ProductCreated] {
 	return &productCreatedHandler{
-		log: log,
+		productDetailService: productDetailService,
 	}
 }
 
 func (h *productCreatedHandler) Process(ctx context.Context, e *event.Event[payload.ProductCreated]) error {
-	h.log.Info("message received", zap.String("message", fmt.Sprintf("%v", e)))
-	return nil
+	return h.productDetailService.ProcessProductCreatedEvent(ctx, e)
 }
 
 func (h *productCreatedHandler) Validate(payload *payload.ProductCreated) error {

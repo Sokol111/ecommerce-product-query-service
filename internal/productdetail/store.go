@@ -24,11 +24,10 @@ type Store interface {
 
 type store struct {
 	wrapper *mongo.CollectionWrapper[collection]
-	logger  *zap.Logger
 }
 
-func newStore(wrapper *mongo.CollectionWrapper[collection], logger *zap.Logger) Store {
-	return &store{wrapper, logger.With(zap.String("component", "product-detail-store"))}
+func newStore(wrapper *mongo.CollectionWrapper[collection]) Store {
+	return &store{wrapper}
 }
 
 func (s *store) Upsert(ctx context.Context, id string, name string, price float32, quantity int, version int, enabled bool) error {
@@ -81,5 +80,5 @@ func (s *store) GetById(ctx context.Context, id string) (*model.ProductDTO, erro
 }
 
 func (s *store) log(ctx context.Context) *zap.Logger {
-	return logger.CombineLogger(s.logger, ctx)
+	return logger.FromContext(ctx).With(zap.String("component", "product-detail-store"))
 }

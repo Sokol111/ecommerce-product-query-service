@@ -5,15 +5,13 @@ server:
   port: 8080
 
 mongo:
-  host: "localhost"
+  host: ""
   port: 27017
   replica-set: rs0
-  #  username: "root"
-  #  password: "password"
   database: "product-query"
 
 kafka:
-  brokers: "localhost:9092"
+  brokers: ""
   consumers-config:
     group-id: "ecommerce-product-query-service"
     auto-offset-reset: "earliest"
@@ -22,3 +20,7 @@ kafka:
         topic: "catalog.product.created.v1"
       - handler: "productUpdatedHandler"
         topic: "catalog.product.updated.v1"
+
+observability:
+  tracing-enabled: true
+  otel-collector-endpoint: ""

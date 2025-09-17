@@ -5,13 +5,13 @@ server:
   port: 8080
 
 mongo:
-  host: ""
+  host: "mongo"
   port: 27017
-  replica-set: rs0
   database: "product-query"
+  replica-set: rs0
 
 kafka:
-  brokers: ""
+  brokers: "kafka:29092"
   consumers-config:
     group-id: "ecommerce-product-query-service"
     auto-offset-reset: "earliest"
@@ -23,4 +23,4 @@ kafka:
 
 observability:
   tracing-enabled: true
-  otel-collector-endpoint: ""
+  otel-collector-endpoint: "otelcol.observability.svc:4317"

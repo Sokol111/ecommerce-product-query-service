@@ -23,4 +23,4 @@ kafka:
 
 observability:
   tracing-enabled: true
-  otel-collector-endpoint: "otelcol.observability.svc:4317"
+  otel-collector-endpoint: "otel-collector-opentelemetry-collector.observability.svc:4317"

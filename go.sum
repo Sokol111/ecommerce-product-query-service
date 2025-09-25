@@ -13,8 +13,6 @@ github.com/Microsoft/go-winio v0.6.2/go.mod h1:yd8OoFMLzJbo9gZq8j5qaps8bJ9aShtEA
 github.com/Microsoft/hcsshim v0.11.5 h1:haEcLNpj9Ka1gd3B3tAEs9CpE0c+1IhoL59w/exYU38=
 github.com/Microsoft/hcsshim v0.11.5/go.mod h1:MV8xMfmECjl5HdO7U/3/hFVnkmSBjAjmA09d4bExKcU=
 github.com/RaveNoX/go-jsoncommentstrip v1.0.0/go.mod h1:78ihd09MekBnJnxpICcwzCMzGrKSKYe4AqU6PDYYpjk=
-github.com/Sokol111/ecommerce-commons v0.1.46 h1:yGQzXZOmjJaCfzU2okDVVMX38B6V02jVm/eAhxmD5+A=
-github.com/Sokol111/ecommerce-commons v0.1.46/go.mod h1:7NxKyDR9sSg3emmxpefZN/ao1RAJUmeqRhBc8ojHBRs=
 github.com/Sokol111/ecommerce-product-query-service-api v1.0.6 h1:JHWECG0zrYg3ebVXtA6St8Zw+3JAwP6J9Tv8KTU4o1w=
 github.com/Sokol111/ecommerce-product-query-service-api v1.0.6/go.mod h1:2BxNUmTU4T88WSlH1U2+xNANRQRXG4aPtb4k/1ULOno=
 github.com/acarl005/stripansi v0.0.0-20180116102854-5a71ef0e047d h1:licZJFw2RwpHMqeKTCYkitsPqHNxTmd4SNR5r94FGM8=

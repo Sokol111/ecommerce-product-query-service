@@ -1,0 +1,17 @@
+[
+    {
+        "createIndexes": "product_detail",
+        "indexes": [
+            {
+                "name": "product_detail_enabled_v1",
+                "key": {
+                    "enabled": 1
+                }
+            }
+        ],
+        "commitQuorum": "majority",
+        "writeConcern": {
+            "w": "majority"
+        }
+    }
+]

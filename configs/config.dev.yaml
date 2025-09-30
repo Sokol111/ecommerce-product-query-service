@@ -23,4 +23,6 @@ kafka:
 
 observability:
   tracing-enabled: true
+  metrics-enabled: true
+  metrics-interval: 10s
   otel-collector-endpoint: "otel-collector-opentelemetry-collector.observability.svc:4317"

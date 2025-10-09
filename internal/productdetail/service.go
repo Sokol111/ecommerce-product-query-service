@@ -19,11 +19,19 @@ func newService(store Store) model.ProductDetailService {
 }
 
 func (s *service) ProcessProductCreatedEvent(ctx context.Context, e *event.Event[payload.ProductCreated]) error {
-	return s.store.Upsert(ctx, e.Payload.ProductID, e.Payload.Name, e.Payload.Price, e.Payload.Quantity, e.Payload.Version, e.Payload.Enabled)
+	return s.store.Upsert(ctx, e.Payload.ProductID, e.Payload.Name, e.Payload.Description, e.Payload.Price, e.Payload.Quantity, e.Payload.Version, e.Payload.Enabled)
 }
 
 func (s *service) ProcessProductUpdatedEvent(ctx context.Context, e *event.Event[payload.ProductUpdated]) error {
-	return s.store.Upsert(ctx, e.Payload.ProductID, e.Payload.Name, e.Payload.Price, e.Payload.Quantity, e.Payload.Version, e.Payload.Enabled)
+	return s.store.Upsert(ctx, e.Payload.ProductID, e.Payload.Name, e.Payload.Description, e.Payload.Price, e.Payload.Quantity, e.Payload.Version, e.Payload.Enabled)
+}
+
+func (s *service) GetRandomProducts(ctx context.Context, amount int) ([]*model.ProductDTO, error) {
+	products, err := s.store.GetRandomProducts(ctx, amount)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get random products, amount [%v]: %w", amount, err)
+	}
+	return products, nil
 }
 
 func (s *service) GetById(ctx context.Context, id string) (*model.ProductDTO, error) {

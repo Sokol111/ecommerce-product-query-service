@@ -17,9 +17,11 @@ import (
 var errEntityNotFound = errors.New("entity not found in database")
 
 type Store interface {
-	Upsert(ctx context.Context, id string, name string, price float32, quantity int, version int, enabled bool) error
+	Upsert(ctx context.Context, id string, name string, description string, price float32, quantity int, version int, enabled bool) error
 
 	GetById(ctx context.Context, id string) (*model.ProductDTO, error)
+
+	GetRandomProducts(ctx context.Context, amount int) ([]*model.ProductDTO, error)
 }
 
 type store struct {
@@ -30,18 +32,19 @@ func newStore(wrapper *mongo.CollectionWrapper[collection]) Store {
 	return &store{wrapper}
 }
 
-func (s *store) Upsert(ctx context.Context, id string, name string, price float32, quantity int, version int, enabled bool) error {
+func (s *store) Upsert(ctx context.Context, id string, name string, description string, price float32, quantity int, version int, enabled bool) error {
 	filter := bson.M{
 		"_id":     id,
 		"version": bson.M{"$lt": version},
 	}
 	update := bson.M{
 		"$set": bson.M{
-			"name":     name,
-			"enabled":  enabled,
-			"version":  version,
-			"price":    price,
-			"quantity": quantity,
+			"name":        name,
+			"description": description,
+			"enabled":     enabled,
+			"version":     version,
+			"price":       price,
+			"quantity":    quantity,
 		},
 	}
 	opts := options.Update().SetUpsert(true)
@@ -57,13 +60,8 @@ func (s *store) Upsert(ctx context.Context, id string, name string, price float3
 
 func (s *store) GetById(ctx context.Context, id string) (*model.ProductDTO, error) {
 	result := s.wrapper.Coll.FindOne(ctx, bson.D{{Key: "_id", Value: id}})
-	var doc struct {
-		ID       string  `bson:"_id"`
-		Name     string  `bson:"name"`
-		Price    float32 `bson:"price"`
-		Quantity int     `bson:"quantity"`
-	}
-	err := result.Decode(&doc)
+	var e entity
+	err := result.Decode(&e)
 	if err != nil {
 		if errors.Is(err, mongodriver.ErrNoDocuments) {
 			return nil, fmt.Errorf("failed to get product [%v]: %w", id, errEntityNotFound)
@@ -71,12 +69,37 @@ func (s *store) GetById(ctx context.Context, id string) (*model.ProductDTO, erro
 		return nil, fmt.Errorf("failed to get product [%v]: decode error: %w", id, err)
 	}
 
-	return &model.ProductDTO{
-		ID:       doc.ID,
-		Name:     doc.Name,
-		Price:    doc.Price,
-		Quantity: doc.Quantity,
-	}, nil
+	return toDTO(&e), nil
+}
+
+func (s *store) GetRandomProducts(ctx context.Context, amount int) ([]*model.ProductDTO, error) {
+	pipeline := mongodriver.Pipeline{
+		{{Key: "$match", Value: bson.D{{Key: "enabled", Value: true}}}},
+		{{Key: "$sample", Value: bson.D{{Key: "size", Value: amount}}}},
+	}
+	cursor, err := s.wrapper.Coll.Aggregate(ctx, pipeline)
+	if err != nil {
+		return nil, fmt.Errorf("failed to aggregate random products, amount [%v]: %w", amount, err)
+	}
+
+	defer cursor.Close(ctx)
+
+	var entities []entity
+	if err = cursor.All(ctx, &entities); err != nil {
+		return nil, fmt.Errorf("failed to decode products: %w", err)
+	}
+
+	dtos := make([]*model.ProductDTO, 0, len(entities))
+
+	for i := range entities {
+		dtos = append(dtos, toDTO(&entities[i]))
+	}
+
+	return dtos, nil
+}
+
+func toDTO(e *entity) *model.ProductDTO {
+	return &model.ProductDTO{ID: e.ID, Name: e.Name, Price: e.Price, Quantity: e.Quantity}
 }
 
 func (s *store) log(ctx context.Context) *zap.Logger {

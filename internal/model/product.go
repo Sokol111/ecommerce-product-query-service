@@ -24,4 +24,6 @@ type ProductDetailService interface {
 
 	// can return ErrNotFound
 	GetById(ctx context.Context, id string) (*ProductDTO, error)
+
+	GetRandomProducts(ctx context.Context, amount int) ([]*ProductDTO, error)
 }

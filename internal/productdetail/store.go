@@ -17,7 +17,7 @@ import (
 var errEntityNotFound = errors.New("entity not found in database")
 
 type Store interface {
-	Upsert(ctx context.Context, id string, name string, description string, price float32, quantity int, version int, enabled bool) error
+	Upsert(ctx context.Context, product *model.Product) error
 
 	GetById(ctx context.Context, id string) (*model.ProductDTO, error)
 
@@ -32,19 +32,20 @@ func newStore(wrapper *mongo.CollectionWrapper[collection]) Store {
 	return &store{wrapper}
 }
 
-func (s *store) Upsert(ctx context.Context, id string, name string, description string, price float32, quantity int, version int, enabled bool) error {
+func (s *store) Upsert(ctx context.Context, product *model.Product) error {
 	filter := bson.M{
-		"_id":     id,
-		"version": bson.M{"$lt": version},
+		"_id":     product.ID,
+		"version": bson.M{"$lt": product.Version},
 	}
 	update := bson.M{
 		"$set": bson.M{
-			"name":        name,
-			"description": description,
-			"enabled":     enabled,
-			"version":     version,
-			"price":       price,
-			"quantity":    quantity,
+			"name":        product.Name,
+			"description": product.Description,
+			"enabled":     product.Enabled,
+			"version":     product.Version,
+			"price":       product.Price,
+			"quantity":    product.Quantity,
+			"imageId":     product.ImageId,
 		},
 	}
 	opts := options.Update().SetUpsert(true)
@@ -53,7 +54,7 @@ func (s *store) Upsert(ctx context.Context, id string, name string, description 
 		return fmt.Errorf("failed to upsert category: %w", err)
 	}
 	if result.MatchedCount == 0 && result.UpsertedCount == 0 {
-		s.log(ctx).Debug("version conflict", zap.String("id", id))
+		s.log(ctx).Debug("version conflict", zap.String("id", product.ID))
 	}
 	return nil
 }
@@ -99,7 +100,7 @@ func (s *store) GetRandomProducts(ctx context.Context, amount int) ([]*model.Pro
 }
 
 func toDTO(e *entity) *model.ProductDTO {
-	return &model.ProductDTO{ID: e.ID, Name: e.Name, Price: e.Price, Quantity: e.Quantity}
+	return &model.ProductDTO{ID: e.ID, Name: e.Name, Price: e.Price, Quantity: e.Quantity, ImageId: e.ImageId}
 }
 
 func (s *store) log(ctx context.Context) *zap.Logger {

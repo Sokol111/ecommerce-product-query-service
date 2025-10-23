@@ -6,5 +6,6 @@ type entity struct {
 	Name     string
 	Price    float32
 	Quantity int
+	ImageId  *string
 	Enabled  bool
 }

@@ -19,11 +19,33 @@ func newService(store Store) model.ProductDetailService {
 }
 
 func (s *service) ProcessProductCreatedEvent(ctx context.Context, e *event.Event[payload.ProductCreated]) error {
-	return s.store.Upsert(ctx, e.Payload.ProductID, e.Payload.Name, e.Payload.Description, e.Payload.Price, e.Payload.Quantity, e.Payload.Version, e.Payload.Enabled)
+	return s.store.Upsert(ctx, &model.Product{
+		ID:          e.Payload.ProductID,
+		Name:        e.Payload.Name,
+		Description: e.Payload.Description,
+		Enabled:     e.Payload.Enabled,
+		Quantity:    e.Payload.Quantity,
+		Price:       e.Payload.Price,
+		ImageId:     e.Payload.ImageId,
+		CreatedAt:   e.Payload.CreatedAt,
+		ModifiedAt:  e.Payload.ModifiedAt,
+		Version:     e.Payload.Version,
+	})
 }
 
 func (s *service) ProcessProductUpdatedEvent(ctx context.Context, e *event.Event[payload.ProductUpdated]) error {
-	return s.store.Upsert(ctx, e.Payload.ProductID, e.Payload.Name, e.Payload.Description, e.Payload.Price, e.Payload.Quantity, e.Payload.Version, e.Payload.Enabled)
+	return s.store.Upsert(ctx, &model.Product{
+		ID:          e.Payload.ProductID,
+		Name:        e.Payload.Name,
+		Description: e.Payload.Description,
+		Enabled:     e.Payload.Enabled,
+		Quantity:    e.Payload.Quantity,
+		Price:       e.Payload.Price,
+		ImageId:     e.Payload.ImageId,
+		CreatedAt:   e.Payload.CreatedAt,
+		ModifiedAt:  e.Payload.ModifiedAt,
+		Version:     e.Payload.Version,
+	})
 }
 
 func (s *service) GetRandomProducts(ctx context.Context, amount int) ([]*model.ProductDTO, error) {

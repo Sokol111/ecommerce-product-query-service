@@ -5,26 +5,37 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/Sokol111/ecommerce-commons/pkg/persistence"
 	"github.com/Sokol111/ecommerce-product-query-service-api/api"
-	"github.com/Sokol111/ecommerce-product-query-service/internal/model"
+	"github.com/Sokol111/ecommerce-product-query-service/internal/application/query"
 )
 
 type productHandler struct {
-	service model.ProductDetailService
+	getByIDHandler   query.GetProductByIDQueryHandler
+	getRandomHandler query.GetRandomProductsQueryHandler
 }
 
-func newProductHandler(service model.ProductDetailService) api.StrictServerInterface {
-	return &productHandler{service}
+func newProductHandler(
+	getByIDHandler query.GetProductByIDQueryHandler,
+	getRandomHandler query.GetRandomProductsQueryHandler,
+) api.StrictServerInterface {
+	return &productHandler{
+		getByIDHandler:   getByIDHandler,
+		getRandomHandler: getRandomHandler,
+	}
 }
 
 func (h *productHandler) GetProductById(c context.Context, request api.GetProductByIdRequestObject) (api.GetProductByIdResponseObject, error) {
-	found, err := h.service.GetById(c, request.Id)
-	if errors.Is(err, model.ErrNotFound) {
+	q := query.GetProductByIDQuery{ID: request.Id}
+
+	found, err := h.getByIDHandler.Handle(c, q)
+	if errors.Is(err, persistence.ErrEntityNotFound) {
 		return api.GetProductById404JSONResponse{Code: 404, Message: "Product not found"}, nil
 	}
 	if err != nil {
 		return api.GetProductById500JSONResponse{Code: 500, Message: http.StatusText(500)}, err
 	}
+
 	return api.GetProductById200JSONResponse{
 		Id:       found.ID,
 		Name:     found.Name,

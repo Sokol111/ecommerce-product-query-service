@@ -3,22 +3,34 @@ package main
 import (
 	"context"
 
-	"github.com/Sokol111/ecommerce-commons/pkg/module"
+	"github.com/Sokol111/ecommerce-commons/pkg/modules"
 	"github.com/Sokol111/ecommerce-commons/pkg/swaggerui"
 	"github.com/Sokol111/ecommerce-product-query-service-api/api"
+	"github.com/Sokol111/ecommerce-product-query-service/internal/application"
 	"github.com/Sokol111/ecommerce-product-query-service/internal/http"
-	"github.com/Sokol111/ecommerce-product-query-service/internal/kafka"
-	"github.com/Sokol111/ecommerce-product-query-service/internal/productdetail"
+	"github.com/Sokol111/ecommerce-product-query-service/internal/infrastructure/messaging/kafka"
+	"github.com/Sokol111/ecommerce-product-query-service/internal/infrastructure/persistence/mongo"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 )
 
 var AppModules = fx.Options(
-	module.NewInfraModule(),
-	module.NewKafkaModule(),
-	kafka.NewKafkaHandlerModule(),
+	// Infrastructure
+	modules.NewCoreModule(),
+	modules.NewPersistenceModule(),
+	modules.NewHTTPModule(),
+	modules.NewObservabilityModule(),
+	modules.NewMessagingModule(),
+
+	// Domain & Application
+	mongo.Module(),
+	application.Module(),
+
+	// Messaging
+	kafka.Module(),
+
+	// HTTP
 	http.NewHttpHandlerModule(),
-	productdetail.NewCategoryListViewModule(),
 	swaggerui.NewSwaggerModule(swaggerui.SwaggerConfig{OpenAPIContent: api.OpenAPIDoc}),
 )
 

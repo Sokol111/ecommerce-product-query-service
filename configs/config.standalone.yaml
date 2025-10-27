@@ -11,6 +11,9 @@ mongo:
   #  username: "root"
   #  password: "password"
   database: "product-query"
+  migrations:
+    enabled: true
+    auto-migrate: true
 
 kafka:
   brokers: "localhost:9092"

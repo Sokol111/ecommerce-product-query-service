@@ -29,7 +29,11 @@
             "substitutePath": [
                 {
                     "from": "${workspaceFolder}",
-                    "to": "/app"
+                    "to": "/src/svc"
+                },
+                {
+                    "from": "${workspaceFolder}/../ecommerce-commons",
+                    "to": "/src/ecommerce-commons"
                 }
             ]
         }

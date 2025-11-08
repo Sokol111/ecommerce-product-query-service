@@ -19,10 +19,8 @@ kafka:
     group-id: "ecommerce-product-query-service"
     auto-offset-reset: "earliest"
     consumers:
-      - handler: "productCreatedHandler"
-        topic: "catalog.product.created.v1"
-      - handler: "productUpdatedHandler"
-        topic: "catalog.product.updated.v1"
+      - name: "product-events"
+        topic: "catalog.product.events"
 
 observability:
   tracing-enabled: true

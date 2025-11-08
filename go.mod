@@ -5,6 +5,7 @@ go 1.24.2
 require (
 	github.com/Sokol111/ecommerce-commons v0.1.46
 	github.com/Sokol111/ecommerce-product-query-service-api v1.0.6
+	github.com/Sokol111/ecommerce-product-service-api v1.0.75
 	github.com/gin-gonic/gin v1.10.1
 	go.mongodb.org/mongo-driver v1.17.4
 	go.uber.org/fx v1.24.0
@@ -34,6 +35,7 @@ require (
 	github.com/golang/snappy v1.0.0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.2 // indirect
+	github.com/hamba/avro/v2 v2.24.0 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/joho/godotenv v1.5.1 // indirect
@@ -42,6 +44,7 @@ require (
 	github.com/klauspost/cpuid/v2 v2.3.0 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
+	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/moby/sys/userns v0.1.0 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect

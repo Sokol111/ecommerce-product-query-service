@@ -73,7 +73,7 @@ vet: ## Run go vet
 	go vet ./...
 
 .PHONY: lint
-lint: ## Run golangci-lint
+lint: ## Run golangci-lint (includes exhaustive switch checking)
 	@echo "$(COLOR_GREEN)Running golangci-lint...$(COLOR_RESET)"
 	@if command -v golangci-lint >/dev/null 2>&1; then \
 		golangci-lint run --timeout=5m; \

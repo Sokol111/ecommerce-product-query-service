@@ -5,7 +5,7 @@ go 1.24.2
 require (
 	github.com/Sokol111/ecommerce-commons v0.1.46
 	github.com/Sokol111/ecommerce-product-query-service-api v1.0.6
-	github.com/Sokol111/ecommerce-product-service-api v1.0.75
+	github.com/Sokol111/ecommerce-product-service-api v1.0.76
 	github.com/gin-gonic/gin v1.10.1
 	go.mongodb.org/mongo-driver v1.17.4
 	go.uber.org/fx v1.24.0

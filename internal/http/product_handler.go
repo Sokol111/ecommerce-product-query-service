@@ -3,7 +3,6 @@ package http
 import (
 	"context"
 	"errors"
-	"net/http"
 
 	"github.com/Sokol111/ecommerce-commons/pkg/persistence"
 	"github.com/Sokol111/ecommerce-product-query-service-api/api"
@@ -30,10 +29,14 @@ func (h *productHandler) GetProductById(c context.Context, request api.GetProduc
 
 	found, err := h.getByIDHandler.Handle(c, q)
 	if errors.Is(err, persistence.ErrEntityNotFound) {
-		return api.GetProductById404JSONResponse{Code: 404, Message: "Product not found"}, nil
+		return api.GetProductById404ApplicationProblemPlusJSONResponse{
+			Status: 404,
+			Type:   "about:blank",
+			Title:  "Product not found",
+		}, nil
 	}
 	if err != nil {
-		return api.GetProductById500JSONResponse{Code: 500, Message: http.StatusText(500)}, err
+		return nil, err
 	}
 
 	return api.GetProductById200JSONResponse{

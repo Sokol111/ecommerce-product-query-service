@@ -7,10 +7,8 @@ server:
 mongo:
   host: "localhost"
   port: 27017
-  replica-set: rs0
-  #  username: "root"
-  #  password: "password"
   database: "product-query"
+  direct-connection: true
   migrations:
     enabled: true
     auto-migrate: true

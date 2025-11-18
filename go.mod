@@ -5,7 +5,7 @@ go 1.24.2
 require (
 	github.com/Sokol111/ecommerce-commons v0.1.46
 	github.com/Sokol111/ecommerce-product-query-service-api v1.0.9
-	github.com/Sokol111/ecommerce-product-service-api v1.0.79
+	github.com/Sokol111/ecommerce-product-service-api v1.0.84
 	github.com/getkin/kin-openapi v0.133.0
 	github.com/gin-gonic/gin v1.10.1
 	go.mongodb.org/mongo-driver v1.17.4

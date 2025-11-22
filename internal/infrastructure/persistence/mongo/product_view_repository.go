@@ -56,7 +56,7 @@ func (r *productViewRepository) Upsert(ctx context.Context, product *productview
 	}
 
 	if result.MatchedCount == 0 && result.UpsertedCount == 0 {
-		logger.FromContext(ctx).Debug("version conflict during upsert", zap.String("id", product.ID))
+		logger.Get(ctx).Debug("version conflict during upsert", zap.String("id", product.ID))
 	}
 
 	return nil

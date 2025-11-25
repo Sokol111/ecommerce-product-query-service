@@ -8,7 +8,6 @@ import (
 
 func Module() fx.Option {
 	return fx.Options(
-		consumer.RegisterTypeMapping(events.DefaultTypeMapping),
-		consumer.RegisterHandlerAndConsumer("product-events", newProductHandler),
+		consumer.RegisterHandlerAndConsumer("product-events", newProductHandler, events.DefaultTypeMapping),
 	)
 }

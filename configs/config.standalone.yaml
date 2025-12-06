@@ -1,5 +1,6 @@
 logger:
   level: "debug"
+  development: true
 
 server:
   port: 8080
@@ -17,14 +18,17 @@ kafka:
   brokers: "localhost:9092"
   schema-registry:
     url: "http://localhost:8084"
-    cache-capacity: 1000
+    auto-register-schemas: true
   consumers-config:
-    group-id: "ecommerce-product-query-service"
-    auto-offset-reset: "earliest"
+    default-group-id: "ecommerce-product-query-service"
+    default-auto-offset-reset: "earliest"
     consumers:
       - name: "product-events"
         topic: "catalog.product.events"
 
 observability:
-  tracing-enabled: true
   otel-collector-endpoint: ""
+  tracing:
+    enabled: true
+  metrics:
+    enabled: false

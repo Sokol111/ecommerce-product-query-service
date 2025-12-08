@@ -9,6 +9,14 @@ import (
 	"github.com/Sokol111/ecommerce-product-query-service/internal/domain/productview"
 )
 
+type GetProductByIDQuery struct {
+	ID string
+}
+
+type GetProductByIDQueryHandler interface {
+	Handle(ctx context.Context, query GetProductByIDQuery) (*productview.ProductView, error)
+}
+
 type getProductByIDHandler struct {
 	repo productview.Repository
 }

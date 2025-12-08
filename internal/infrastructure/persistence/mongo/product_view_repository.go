@@ -76,10 +76,10 @@ func (r *productViewRepository) FindByID(ctx context.Context, id string) (*produ
 	return r.mapper.ToDomain(&entity), nil
 }
 
-func (r *productViewRepository) FindRandom(ctx context.Context, amount int) ([]*productview.ProductView, error) {
+func (r *productViewRepository) FindRandom(ctx context.Context, count int) ([]*productview.ProductView, error) {
 	pipeline := mongodriver.Pipeline{
 		{{Key: "$match", Value: bson.D{{Key: "enabled", Value: true}}}},
-		{{Key: "$sample", Value: bson.D{{Key: "size", Value: amount}}}},
+		{{Key: "$sample", Value: bson.D{{Key: "size", Value: count}}}},
 	}
 
 	cursor, err := r.collection.Aggregate(ctx, pipeline)

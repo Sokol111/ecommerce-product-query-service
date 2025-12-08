@@ -10,5 +10,5 @@ type Repository interface {
 	FindByID(ctx context.Context, id string) (*ProductView, error)
 
 	// FindRandom retrieves random enabled products
-	FindRandom(ctx context.Context, amount int) ([]*ProductView, error)
+	FindRandom(ctx context.Context, count int) ([]*ProductView, error)
 }

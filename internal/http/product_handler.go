@@ -46,3 +46,24 @@ func (h *productHandler) GetProductById(c context.Context, request api.GetProduc
 		Quantity: found.Quantity,
 	}, nil
 }
+
+func (h *productHandler) GetRandomProducts(c context.Context, request api.GetRandomProductsRequestObject) (api.GetRandomProductsResponseObject, error) {
+	q := query.GetRandomProductsQuery{Count: request.Params.Count}
+
+	products, err := h.getRandomHandler.Handle(c, q)
+	if err != nil {
+		return nil, err
+	}
+
+	response := make([]api.ProductResponse, len(products))
+	for i, p := range products {
+		response[i] = api.ProductResponse{
+			Id:       p.ID,
+			Name:     p.Name,
+			Price:    p.Price,
+			Quantity: p.Quantity,
+		}
+	}
+
+	return api.GetRandomProducts200JSONResponse(response), nil
+}

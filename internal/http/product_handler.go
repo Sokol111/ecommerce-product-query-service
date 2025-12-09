@@ -44,6 +44,7 @@ func (h *productHandler) GetProductById(c context.Context, request api.GetProduc
 		Name:     found.Name,
 		Price:    found.Price,
 		Quantity: found.Quantity,
+		ImageId:  found.ImageID,
 	}, nil
 }
 
@@ -62,6 +63,7 @@ func (h *productHandler) GetRandomProducts(c context.Context, request api.GetRan
 			Name:     p.Name,
 			Price:    p.Price,
 			Quantity: p.Quantity,
+			ImageId:  p.ImageID,
 		}
 	}
 

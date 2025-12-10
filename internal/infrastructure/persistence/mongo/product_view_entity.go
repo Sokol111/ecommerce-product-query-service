@@ -9,7 +9,7 @@ type productViewEntity struct {
 	ID          string    `bson:"_id"`
 	Version     int       `bson:"version"`
 	Name        string    `bson:"name"`
-	Description string    `bson:"description"`
+	Description *string   `bson:"description,omitempty"`
 	Price       float32   `bson:"price"`
 	Quantity    int       `bson:"quantity"`
 	ImageID     *string   `bson:"imageId,omitempty"`

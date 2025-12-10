@@ -42,13 +42,11 @@ func (h *productHandler) Process(ctx context.Context, event any) error {
 }
 
 func (h *productHandler) handleProductCreated(ctx context.Context, e *events.ProductCreatedEvent) error {
-	// TODO: Description field is missing in the event schema
-	// Consider adding it to product_created.avsc and product_updated.avsc
 	view := productview.NewProductView(
 		e.Payload.ProductID,
 		e.Payload.Version,
 		e.Payload.Name,
-		"", // description is not included in the current event schema
+		e.Payload.Description,
 		e.Payload.Price,
 		e.Payload.Quantity,
 		e.Payload.ImageID,
@@ -70,13 +68,11 @@ func (h *productHandler) handleProductCreated(ctx context.Context, e *events.Pro
 }
 
 func (h *productHandler) handleProductUpdated(ctx context.Context, e *events.ProductUpdatedEvent) error {
-	// TODO: Description field is missing in the event schema
-	// Consider adding it to product_created.avsc and product_updated.avsc
 	view := productview.NewProductView(
 		e.Payload.ProductID,
 		e.Payload.Version,
 		e.Payload.Name,
-		"", // description is not included in the current event schema
+		e.Payload.Description,
 		e.Payload.Price,
 		e.Payload.Quantity,
 		e.Payload.ImageID,

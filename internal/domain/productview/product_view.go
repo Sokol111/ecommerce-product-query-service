@@ -8,7 +8,7 @@ type ProductView struct {
 	ID          string
 	Version     int
 	Name        string
-	Description string
+	Description *string
 	Price       float32
 	Quantity    int
 	ImageID     *string
@@ -18,7 +18,7 @@ type ProductView struct {
 }
 
 // Reconstruct creates a ProductView from persistence data
-func Reconstruct(id string, version int, name, description string, price float32, quantity int, imageID *string, enabled bool, createdAt, modifiedAt time.Time) *ProductView {
+func Reconstruct(id string, version int, name string, description *string, price float32, quantity int, imageID *string, enabled bool, createdAt, modifiedAt time.Time) *ProductView {
 	return &ProductView{
 		ID:          id,
 		Version:     version,
@@ -34,7 +34,7 @@ func Reconstruct(id string, version int, name, description string, price float32
 }
 
 // NewProductView creates a new product view from event data
-func NewProductView(id string, version int, name, description string, price float32, quantity int, imageID *string, enabled bool, createdAt, modifiedAt time.Time) *ProductView {
+func NewProductView(id string, version int, name string, description *string, price float32, quantity int, imageID *string, enabled bool, createdAt, modifiedAt time.Time) *ProductView {
 	return &ProductView{
 		ID:          id,
 		Version:     version,

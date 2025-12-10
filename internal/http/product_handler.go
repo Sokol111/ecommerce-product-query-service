@@ -40,11 +40,12 @@ func (h *productHandler) GetProductById(c context.Context, request api.GetProduc
 	}
 
 	return api.GetProductById200JSONResponse{
-		Id:       found.ID,
-		Name:     found.Name,
-		Price:    found.Price,
-		Quantity: found.Quantity,
-		ImageId:  found.ImageID,
+		Id:          found.ID,
+		Name:        found.Name,
+		Description: found.Description,
+		Price:       found.Price,
+		Quantity:    found.Quantity,
+		ImageId:     found.ImageID,
 	}, nil
 }
 
@@ -59,11 +60,12 @@ func (h *productHandler) GetRandomProducts(c context.Context, request api.GetRan
 	response := make([]api.ProductResponse, len(products))
 	for i, p := range products {
 		response[i] = api.ProductResponse{
-			Id:       p.ID,
-			Name:     p.Name,
-			Price:    p.Price,
-			Quantity: p.Quantity,
-			ImageId:  p.ImageID,
+			Id:          p.ID,
+			Name:        p.Name,
+			Description: p.Description,
+			Price:       p.Price,
+			Quantity:    p.Quantity,
+			ImageId:     p.ImageID,
 		}
 	}
 

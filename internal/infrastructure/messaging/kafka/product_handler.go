@@ -7,7 +7,7 @@ import (
 	"github.com/Sokol111/ecommerce-commons/pkg/core/logger"
 	"github.com/Sokol111/ecommerce-commons/pkg/messaging/kafka/consumer"
 	"github.com/Sokol111/ecommerce-product-query-service/internal/domain/productview"
-	"github.com/Sokol111/ecommerce-product-service-api/events"
+	"github.com/Sokol111/ecommerce-product-service-api/gen/events"
 	"go.uber.org/zap"
 )
 

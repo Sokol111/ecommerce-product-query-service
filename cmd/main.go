@@ -5,7 +5,7 @@ import (
 
 	"github.com/Sokol111/ecommerce-commons/pkg/modules"
 	"github.com/Sokol111/ecommerce-commons/pkg/swaggerui"
-	"github.com/Sokol111/ecommerce-product-query-service-api/api"
+	"github.com/Sokol111/ecommerce-product-query-service-api/gen/httpapi"
 	"github.com/Sokol111/ecommerce-product-query-service/internal/application"
 	"github.com/Sokol111/ecommerce-product-query-service/internal/http"
 	"github.com/Sokol111/ecommerce-product-query-service/internal/infrastructure/messaging/kafka"
@@ -31,7 +31,7 @@ var AppModules = fx.Options(
 
 	// HTTP
 	http.NewHttpHandlerModule(),
-	swaggerui.NewSwaggerModule(swaggerui.SwaggerConfig{OpenAPIContent: api.OpenAPIDoc}),
+	swaggerui.NewSwaggerModule(swaggerui.SwaggerConfig{OpenAPIContent: httpapi.OpenAPIDoc}),
 )
 
 func main() {

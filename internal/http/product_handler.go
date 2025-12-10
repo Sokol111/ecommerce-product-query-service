@@ -5,7 +5,7 @@ import (
 	"errors"
 
 	"github.com/Sokol111/ecommerce-commons/pkg/persistence"
-	"github.com/Sokol111/ecommerce-product-query-service-api/api"
+	"github.com/Sokol111/ecommerce-product-query-service-api/gen/httpapi"
 	"github.com/Sokol111/ecommerce-product-query-service/internal/application/query"
 )
 
@@ -17,19 +17,19 @@ type productHandler struct {
 func newProductHandler(
 	getByIDHandler query.GetProductByIDQueryHandler,
 	getRandomHandler query.GetRandomProductsQueryHandler,
-) api.StrictServerInterface {
+) httpapi.StrictServerInterface {
 	return &productHandler{
 		getByIDHandler:   getByIDHandler,
 		getRandomHandler: getRandomHandler,
 	}
 }
 
-func (h *productHandler) GetProductById(c context.Context, request api.GetProductByIdRequestObject) (api.GetProductByIdResponseObject, error) {
+func (h *productHandler) GetProductById(c context.Context, request httpapi.GetProductByIdRequestObject) (httpapi.GetProductByIdResponseObject, error) {
 	q := query.GetProductByIDQuery{ID: request.Id}
 
 	found, err := h.getByIDHandler.Handle(c, q)
 	if errors.Is(err, persistence.ErrEntityNotFound) {
-		return api.GetProductById404ApplicationProblemPlusJSONResponse{
+		return httpapi.GetProductById404ApplicationProblemPlusJSONResponse{
 			Status: 404,
 			Type:   "about:blank",
 			Title:  "Product not found",
@@ -39,7 +39,7 @@ func (h *productHandler) GetProductById(c context.Context, request api.GetProduc
 		return nil, err
 	}
 
-	return api.GetProductById200JSONResponse{
+	return httpapi.GetProductById200JSONResponse{
 		Id:          found.ID,
 		Name:        found.Name,
 		Description: found.Description,
@@ -49,7 +49,7 @@ func (h *productHandler) GetProductById(c context.Context, request api.GetProduc
 	}, nil
 }
 
-func (h *productHandler) GetRandomProducts(c context.Context, request api.GetRandomProductsRequestObject) (api.GetRandomProductsResponseObject, error) {
+func (h *productHandler) GetRandomProducts(c context.Context, request httpapi.GetRandomProductsRequestObject) (httpapi.GetRandomProductsResponseObject, error) {
 	q := query.GetRandomProductsQuery{Count: request.Params.Count}
 
 	products, err := h.getRandomHandler.Handle(c, q)
@@ -57,9 +57,9 @@ func (h *productHandler) GetRandomProducts(c context.Context, request api.GetRan
 		return nil, err
 	}
 
-	response := make([]api.ProductResponse, len(products))
+	response := make([]httpapi.ProductResponse, len(products))
 	for i, p := range products {
-		response[i] = api.ProductResponse{
+		response[i] = httpapi.ProductResponse{
 			Id:          p.ID,
 			Name:        p.Name,
 			Description: p.Description,
@@ -69,5 +69,5 @@ func (h *productHandler) GetRandomProducts(c context.Context, request api.GetRan
 		}
 	}
 
-	return api.GetRandomProducts200JSONResponse(response), nil
+	return httpapi.GetRandomProducts200JSONResponse(response), nil
 }

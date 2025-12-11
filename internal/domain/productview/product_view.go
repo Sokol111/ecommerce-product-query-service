@@ -12,13 +12,14 @@ type ProductView struct {
 	Price       float32
 	Quantity    int
 	ImageID     *string
+	CategoryID  *string
 	Enabled     bool
 	CreatedAt   time.Time
 	ModifiedAt  time.Time
 }
 
 // Reconstruct creates a ProductView from persistence data
-func Reconstruct(id string, version int, name string, description *string, price float32, quantity int, imageID *string, enabled bool, createdAt, modifiedAt time.Time) *ProductView {
+func Reconstruct(id string, version int, name string, description *string, price float32, quantity int, imageID *string, categoryID *string, enabled bool, createdAt, modifiedAt time.Time) *ProductView {
 	return &ProductView{
 		ID:          id,
 		Version:     version,
@@ -27,6 +28,7 @@ func Reconstruct(id string, version int, name string, description *string, price
 		Price:       price,
 		Quantity:    quantity,
 		ImageID:     imageID,
+		CategoryID:  categoryID,
 		Enabled:     enabled,
 		CreatedAt:   createdAt,
 		ModifiedAt:  modifiedAt,
@@ -34,7 +36,7 @@ func Reconstruct(id string, version int, name string, description *string, price
 }
 
 // NewProductView creates a new product view from event data
-func NewProductView(id string, version int, name string, description *string, price float32, quantity int, imageID *string, enabled bool, createdAt, modifiedAt time.Time) *ProductView {
+func NewProductView(id string, version int, name string, description *string, price float32, quantity int, imageID *string, categoryID *string, enabled bool, createdAt, modifiedAt time.Time) *ProductView {
 	return &ProductView{
 		ID:          id,
 		Version:     version,
@@ -43,6 +45,7 @@ func NewProductView(id string, version int, name string, description *string, pr
 		Price:       price,
 		Quantity:    quantity,
 		ImageID:     imageID,
+		CategoryID:  categoryID,
 		Enabled:     enabled,
 		CreatedAt:   createdAt,
 		ModifiedAt:  modifiedAt,

@@ -13,6 +13,7 @@ type productViewEntity struct {
 	Price       float32   `bson:"price"`
 	Quantity    int       `bson:"quantity"`
 	ImageID     *string   `bson:"imageId,omitempty"`
+	CategoryID  *string   `bson:"categoryId,omitempty"`
 	Enabled     bool      `bson:"enabled"`
 	CreatedAt   time.Time `bson:"createdAt"`
 	ModifiedAt  time.Time `bson:"modifiedAt"`

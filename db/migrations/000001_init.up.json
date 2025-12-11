@@ -7,6 +7,12 @@
                 "key": {
                     "enabled": 1
                 }
+            },
+            {
+                "name": "product_detail_categoryId_v1",
+                "key": {
+                    "categoryId": 1
+                }
             }
         ],
         "commitQuorum": "majority",

@@ -5,5 +5,12 @@
         "writeConcern": {
             "w": "majority"
         }
+    },
+    {
+        "dropIndexes": "product_detail",
+        "index": "product_detail_categoryId_v1",
+        "writeConcern": {
+            "w": "majority"
+        }
     }
 ]

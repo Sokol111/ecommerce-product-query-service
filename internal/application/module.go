@@ -12,6 +12,7 @@ func Module() fx.Option {
 		fx.Provide(
 			query.NewGetProductByIDHandler,
 			query.NewGetRandomProductsHandler,
+			query.NewGetListProductsHandler,
 		),
 	)
 }

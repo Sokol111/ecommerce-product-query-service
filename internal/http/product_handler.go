@@ -13,15 +13,18 @@ import (
 type productHandler struct {
 	getByIDHandler   query.GetProductByIDQueryHandler
 	getRandomHandler query.GetRandomProductsQueryHandler
+	getListHandler   query.GetListProductsQueryHandler
 }
 
 func newProductHandler(
 	getByIDHandler query.GetProductByIDQueryHandler,
 	getRandomHandler query.GetRandomProductsQueryHandler,
+	getListHandler query.GetListProductsQueryHandler,
 ) httpapi.StrictServerInterface {
 	return &productHandler{
 		getByIDHandler:   getByIDHandler,
 		getRandomHandler: getRandomHandler,
+		getListHandler:   getListHandler,
 	}
 }
 
@@ -69,4 +72,45 @@ func (h *productHandler) GetRandomProducts(c context.Context, request httpapi.Ge
 	}
 
 	return httpapi.GetRandomProducts200JSONResponse(response), nil
+}
+
+func (h *productHandler) GetProductList(c context.Context, request httpapi.GetProductListRequestObject) (httpapi.GetProductListResponseObject, error) {
+	// Default sort and order
+	sort := "name"
+	order := "desc"
+
+	// Override with request params if provided
+	if request.Params.Sort != nil {
+		sort = string(*request.Params.Sort)
+	}
+
+	if request.Params.Order != nil {
+		order = string(*request.Params.Order)
+	}
+
+	q := query.GetListProductsQuery{
+		Page:       request.Params.Page,
+		Size:       request.Params.Size,
+		CategoryID: request.Params.CategoryId,
+		Sort:       sort,
+		Order:      order,
+	}
+
+	result, err := h.getListHandler.Handle(c, q)
+	if err != nil {
+		return nil, err
+	}
+
+	response := httpapi.GetProductList200JSONResponse{
+		Items: make([]httpapi.ProductResponse, 0, len(result.Items)),
+		Page:  result.Page,
+		Size:  result.Size,
+		Total: int(result.Total),
+	}
+
+	for _, p := range result.Items {
+		response.Items = append(response.Items, toProductResponse(p))
+	}
+
+	return response, nil
 }

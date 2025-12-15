@@ -36,6 +36,7 @@ func toProductResponse(p *productview.ProductView) httpapi.ProductResponse {
 		Price:       p.Price,
 		Quantity:    p.Quantity,
 		ImageId:     p.ImageID,
+		ImageUrl:    p.ImageURL,
 		CategoryId:  p.CategoryID,
 	}
 }

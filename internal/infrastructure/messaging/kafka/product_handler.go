@@ -6,8 +6,9 @@ import (
 
 	"github.com/Sokol111/ecommerce-commons/pkg/core/logger"
 	"github.com/Sokol111/ecommerce-commons/pkg/messaging/kafka/consumer"
+	image_events "github.com/Sokol111/ecommerce-image-service-api/gen/events"
 	"github.com/Sokol111/ecommerce-product-query-service/internal/domain/productview"
-	"github.com/Sokol111/ecommerce-product-service-api/gen/events"
+	product_events "github.com/Sokol111/ecommerce-product-service-api/gen/events"
 	"go.uber.org/zap"
 )
 
@@ -22,26 +23,25 @@ func newProductHandler(repo productview.Repository) *productHandler {
 }
 
 func (h *productHandler) Process(ctx context.Context, event any) error {
-	// Type assert to Event interface first to get exhaustiveness checking
-	e, ok := event.(events.Event)
-	if !ok {
-		return fmt.Errorf("event does not implement Event interface: %T: %w", event, consumer.ErrSkipMessage)
-	}
-
-	// Now switch on concrete types - exhaustive linter will warn if any Event type is missing
-	switch evt := e.(type) {
-	case *events.ProductCreatedEvent:
+	switch evt := event.(type) {
+	// Product events
+	case *product_events.ProductCreatedEvent:
 		return h.handleProductCreated(ctx, evt)
-	case *events.ProductUpdatedEvent:
+	case *product_events.ProductUpdatedEvent:
 		return h.handleProductUpdated(ctx, evt)
+
+	// Image events (published to same topic with product_id as partition key)
+	case *image_events.ProductImagePromotedEvent:
+		return h.handleProductImagePromoted(ctx, evt)
+
 	default:
-		// If exhaustive linter is enabled and all Event types are handled above,
-		// this case should theoretically never be reached
+		logger.Get(ctx).Warn("unknown event type, skipping",
+			zap.String("type", fmt.Sprintf("%T", event)))
 		return fmt.Errorf("unhandled event type: %T: %w", event, consumer.ErrSkipMessage)
 	}
 }
 
-func (h *productHandler) handleProductCreated(ctx context.Context, e *events.ProductCreatedEvent) error {
+func (h *productHandler) handleProductCreated(ctx context.Context, e *product_events.ProductCreatedEvent) error {
 	view := productview.NewProductView(
 		e.Payload.ProductID,
 		e.Payload.Version,
@@ -68,7 +68,7 @@ func (h *productHandler) handleProductCreated(ctx context.Context, e *events.Pro
 	return nil
 }
 
-func (h *productHandler) handleProductUpdated(ctx context.Context, e *events.ProductUpdatedEvent) error {
+func (h *productHandler) handleProductUpdated(ctx context.Context, e *product_events.ProductUpdatedEvent) error {
 	view := productview.NewProductView(
 		e.Payload.ProductID,
 		e.Payload.Version,
@@ -91,6 +91,19 @@ func (h *productHandler) handleProductUpdated(ctx context.Context, e *events.Pro
 		zap.String("productID", e.Payload.ProductID),
 		zap.String("eventID", e.Metadata.EventID),
 		zap.Int("version", e.Payload.Version))
+
+	return nil
+}
+
+func (h *productHandler) handleProductImagePromoted(ctx context.Context, e *image_events.ProductImagePromotedEvent) error {
+	if err := h.repo.UpdateImageURL(ctx, e.Payload.ProductID, e.Payload.ImageID, e.Payload.ImageURL); err != nil {
+		return fmt.Errorf("failed to update product image URL: %w", err)
+	}
+
+	h.log(ctx).Debug("product image URL updated",
+		zap.String("productID", e.Payload.ProductID),
+		zap.String("imageID", e.Payload.ImageID),
+		zap.String("eventID", e.Metadata.EventID))
 
 	return nil
 }

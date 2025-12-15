@@ -12,6 +12,7 @@ type ProductView struct {
 	Price       float32
 	Quantity    int
 	ImageID     *string
+	ImageURL    *string // Denormalized image URL for efficient reads
 	CategoryID  *string
 	Enabled     bool
 	CreatedAt   time.Time
@@ -19,7 +20,7 @@ type ProductView struct {
 }
 
 // Reconstruct creates a ProductView from persistence data
-func Reconstruct(id string, version int, name string, description *string, price float32, quantity int, imageID *string, categoryID *string, enabled bool, createdAt, modifiedAt time.Time) *ProductView {
+func Reconstruct(id string, version int, name string, description *string, price float32, quantity int, imageID *string, imageURL *string, categoryID *string, enabled bool, createdAt, modifiedAt time.Time) *ProductView {
 	return &ProductView{
 		ID:          id,
 		Version:     version,
@@ -28,6 +29,7 @@ func Reconstruct(id string, version int, name string, description *string, price
 		Price:       price,
 		Quantity:    quantity,
 		ImageID:     imageID,
+		ImageURL:    imageURL,
 		CategoryID:  categoryID,
 		Enabled:     enabled,
 		CreatedAt:   createdAt,
@@ -45,6 +47,7 @@ func NewProductView(id string, version int, name string, description *string, pr
 		Price:       price,
 		Quantity:    quantity,
 		ImageID:     imageID,
+		ImageURL:    nil, // Will be populated by ImagePromoted event
 		CategoryID:  categoryID,
 		Enabled:     enabled,
 		CreatedAt:   createdAt,

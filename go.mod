@@ -5,6 +5,7 @@ go 1.25.5
 require (
 	github.com/Sokol111/ecommerce-commons v0.1.46
 	github.com/Sokol111/ecommerce-product-query-service-api v1.0.13
+	github.com/Sokol111/ecommerce-image-service-api v1.0.28
 	github.com/Sokol111/ecommerce-product-service-api v1.0.91
 	github.com/getkin/kin-openapi v0.133.0
 	github.com/gin-gonic/gin v1.11.0

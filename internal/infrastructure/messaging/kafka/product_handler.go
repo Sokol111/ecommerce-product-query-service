@@ -42,6 +42,8 @@ func (h *productHandler) Process(ctx context.Context, event any) error {
 }
 
 func (h *productHandler) handleProductCreated(ctx context.Context, e *product_events.ProductCreatedEvent) error {
+	attributes := mapEventAttributes(e.Payload.Attributes)
+
 	view := productview.NewProductView(
 		e.Payload.ProductID,
 		e.Payload.Version,
@@ -54,6 +56,7 @@ func (h *productHandler) handleProductCreated(ctx context.Context, e *product_ev
 		e.Payload.Enabled,
 		e.Payload.CreatedAt,
 		e.Payload.ModifiedAt,
+		attributes,
 	)
 
 	if err := h.repo.Upsert(ctx, view); err != nil {
@@ -69,6 +72,8 @@ func (h *productHandler) handleProductCreated(ctx context.Context, e *product_ev
 }
 
 func (h *productHandler) handleProductUpdated(ctx context.Context, e *product_events.ProductUpdatedEvent) error {
+	attributes := mapEventAttributes(e.Payload.Attributes)
+
 	view := productview.NewProductView(
 		e.Payload.ProductID,
 		e.Payload.Version,
@@ -81,6 +86,7 @@ func (h *productHandler) handleProductUpdated(ctx context.Context, e *product_ev
 		e.Payload.Enabled,
 		e.Payload.CreatedAt,
 		e.Payload.ModifiedAt,
+		attributes,
 	)
 
 	if err := h.repo.Upsert(ctx, view); err != nil {
@@ -93,6 +99,27 @@ func (h *productHandler) handleProductUpdated(ctx context.Context, e *product_ev
 		zap.Int("version", e.Payload.Version))
 
 	return nil
+}
+
+func mapEventAttributes(eventAttrs *[]product_events.ProductAttribute) []productview.ProductAttribute {
+	if eventAttrs == nil || len(*eventAttrs) == 0 {
+		return nil
+	}
+
+	attributes := make([]productview.ProductAttribute, len(*eventAttrs))
+	for i, attr := range *eventAttrs {
+		var values []string
+		if attr.Values != nil {
+			values = *attr.Values
+		}
+		attributes[i] = productview.ProductAttribute{
+			AttributeID:  attr.AttributeID,
+			Value:        attr.Value,
+			Values:       values,
+			NumericValue: attr.NumericValue,
+		}
+	}
+	return attributes
 }
 
 func (h *productHandler) handleProductImagePromoted(ctx context.Context, e *image_events.ProductImagePromotedEvent) error {

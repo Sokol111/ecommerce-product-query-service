@@ -12,6 +12,19 @@ func newProductViewMapper() *productViewMapper {
 }
 
 func (m *productViewMapper) ToEntity(domain *productview.ProductView) *productViewEntity {
+	var attributes []productAttributeEntity
+	if len(domain.Attributes) > 0 {
+		attributes = make([]productAttributeEntity, len(domain.Attributes))
+		for i, attr := range domain.Attributes {
+			attributes[i] = productAttributeEntity{
+				AttributeID:  attr.AttributeID,
+				Value:        attr.Value,
+				Values:       attr.Values,
+				NumericValue: attr.NumericValue,
+			}
+		}
+	}
+
 	return &productViewEntity{
 		ID:          domain.ID,
 		Version:     domain.Version,
@@ -25,10 +38,24 @@ func (m *productViewMapper) ToEntity(domain *productview.ProductView) *productVi
 		Enabled:     domain.Enabled,
 		CreatedAt:   domain.CreatedAt,
 		ModifiedAt:  domain.ModifiedAt,
+		Attributes:  attributes,
 	}
 }
 
 func (m *productViewMapper) ToDomain(entity *productViewEntity) *productview.ProductView {
+	var attributes []productview.ProductAttribute
+	if len(entity.Attributes) > 0 {
+		attributes = make([]productview.ProductAttribute, len(entity.Attributes))
+		for i, attr := range entity.Attributes {
+			attributes[i] = productview.ProductAttribute{
+				AttributeID:  attr.AttributeID,
+				Value:        attr.Value,
+				Values:       attr.Values,
+				NumericValue: attr.NumericValue,
+			}
+		}
+	}
+
 	return productview.Reconstruct(
 		entity.ID,
 		entity.Version,
@@ -42,6 +69,7 @@ func (m *productViewMapper) ToDomain(entity *productViewEntity) *productview.Pro
 		entity.Enabled,
 		entity.CreatedAt,
 		entity.ModifiedAt,
+		attributes,
 	)
 }
 

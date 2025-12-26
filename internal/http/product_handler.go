@@ -29,6 +29,20 @@ func newProductHandler(
 }
 
 func toProductResponse(p *productview.ProductView) httpapi.ProductResponse {
+	var attributes *[]httpapi.ProductAttribute
+	if len(p.Attributes) > 0 {
+		attrs := make([]httpapi.ProductAttribute, len(p.Attributes))
+		for i, attr := range p.Attributes {
+			attrs[i] = httpapi.ProductAttribute{
+				AttributeId:  attr.AttributeID,
+				Value:        attr.Value,
+				Values:       &attr.Values,
+				NumericValue: attr.NumericValue,
+			}
+		}
+		attributes = &attrs
+	}
+
 	return httpapi.ProductResponse{
 		Id:          p.ID,
 		Name:        p.Name,
@@ -38,6 +52,7 @@ func toProductResponse(p *productview.ProductView) httpapi.ProductResponse {
 		ImageId:     p.ImageID,
 		ImageUrl:    p.ImageURL,
 		CategoryId:  p.CategoryID,
+		Attributes:  attributes,
 	}
 }
 

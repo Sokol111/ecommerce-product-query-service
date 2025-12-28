@@ -3,6 +3,9 @@ package http
 import (
 	"context"
 	"errors"
+	"net/url"
+
+	"github.com/samber/lo"
 
 	"github.com/Sokol111/ecommerce-commons/pkg/persistence"
 	"github.com/Sokol111/ecommerce-product-query-service-api/gen/httpapi"
@@ -20,7 +23,7 @@ func newProductHandler(
 	getByIDHandler query.GetProductByIDQueryHandler,
 	getRandomHandler query.GetRandomProductsQueryHandler,
 	getListHandler query.GetListProductsQueryHandler,
-) httpapi.StrictServerInterface {
+) httpapi.Handler {
 	return &productHandler{
 		getByIDHandler:   getByIDHandler,
 		getRandomHandler: getRandomHandler,
@@ -28,42 +31,53 @@ func newProductHandler(
 	}
 }
 
-func toProductResponse(p *productview.ProductView) httpapi.ProductResponse {
-	var attributes *[]httpapi.ProductAttribute
-	if len(p.Attributes) > 0 {
-		attrs := make([]httpapi.ProductAttribute, len(p.Attributes))
-		for i, attr := range p.Attributes {
-			attrs[i] = httpapi.ProductAttribute{
-				AttributeId:  attr.AttributeID,
-				Value:        attr.Value,
-				Values:       &attr.Values,
-				NumericValue: attr.NumericValue,
-			}
-		}
-		attributes = &attrs
-	}
+var aboutBlankURL, _ = url.Parse("about:blank")
 
-	return httpapi.ProductResponse{
-		Id:          p.ID,
-		Name:        p.Name,
-		Description: p.Description,
-		Price:       p.Price,
-		Quantity:    p.Quantity,
-		ImageId:     p.ImageID,
-		ImageUrl:    p.ImageURL,
-		CategoryId:  p.CategoryID,
-		Attributes:  attributes,
+func toOptString(s *string) httpapi.OptString {
+	if s == nil {
+		return httpapi.OptString{}
+	}
+	return httpapi.NewOptString(*s)
+}
+
+func toOptFloat64(f *float32) httpapi.OptFloat64 {
+	if f == nil {
+		return httpapi.OptFloat64{}
+	}
+	return httpapi.NewOptFloat64(float64(*f))
+}
+
+func toProductAttributeResponse(attr productview.ProductAttribute, _ int) httpapi.ProductAttribute {
+	return httpapi.ProductAttribute{
+		AttributeId:  attr.AttributeID,
+		Value:        toOptString(attr.Value),
+		Values:       attr.Values,
+		NumericValue: toOptFloat64(attr.NumericValue),
 	}
 }
 
-func (h *productHandler) GetProductById(c context.Context, request httpapi.GetProductByIdRequestObject) (httpapi.GetProductByIdResponseObject, error) {
-	q := query.GetProductByIDQuery{ID: request.Id}
+func toProductResponse(p *productview.ProductView) *httpapi.ProductResponse {
+	return &httpapi.ProductResponse{
+		ID:          p.ID,
+		Name:        p.Name,
+		Description: toOptString(p.Description),
+		Price:       float64(p.Price),
+		Quantity:    p.Quantity,
+		ImageId:     toOptString(p.ImageID),
+		ImageUrl:    toOptString(p.ImageURL),
+		CategoryId:  toOptString(p.CategoryID),
+		Attributes:  lo.Map(p.Attributes, toProductAttributeResponse),
+	}
+}
 
-	found, err := h.getByIDHandler.Handle(c, q)
+func (h *productHandler) GetProductById(ctx context.Context, params httpapi.GetProductByIdParams) (httpapi.GetProductByIdRes, error) {
+	q := query.GetProductByIDQuery{ID: params.ID}
+
+	found, err := h.getByIDHandler.Handle(ctx, q)
 	if errors.Is(err, persistence.ErrEntityNotFound) {
-		return httpapi.GetProductById404ApplicationProblemPlusJSONResponse{
+		return &httpapi.GetProductByIdNotFound{
 			Status: 404,
-			Type:   "about:blank",
+			Type:   *aboutBlankURL,
 			Title:  "Product not found",
 		}, nil
 	}
@@ -71,62 +85,49 @@ func (h *productHandler) GetProductById(c context.Context, request httpapi.GetPr
 		return nil, err
 	}
 
-	return httpapi.GetProductById200JSONResponse(toProductResponse(found)), nil
+	return toProductResponse(found), nil
 }
 
-func (h *productHandler) GetRandomProducts(c context.Context, request httpapi.GetRandomProductsRequestObject) (httpapi.GetRandomProductsResponseObject, error) {
-	q := query.GetRandomProductsQuery{Count: request.Params.Count}
+func (h *productHandler) GetRandomProducts(ctx context.Context, params httpapi.GetRandomProductsParams) (httpapi.GetRandomProductsRes, error) {
+	q := query.GetRandomProductsQuery{Count: params.Count}
 
-	products, err := h.getRandomHandler.Handle(c, q)
+	products, err := h.getRandomHandler.Handle(ctx, q)
 	if err != nil {
 		return nil, err
 	}
 
-	response := make([]httpapi.ProductResponse, len(products))
-	for i, p := range products {
-		response[i] = toProductResponse(p)
-	}
+	response := lo.Map(products, func(p *productview.ProductView, _ int) httpapi.ProductResponse {
+		return *toProductResponse(p)
+	})
 
-	return httpapi.GetRandomProducts200JSONResponse(response), nil
+	return (*httpapi.GetRandomProductsOKApplicationJSON)(&response), nil
 }
 
-func (h *productHandler) GetProductList(c context.Context, request httpapi.GetProductListRequestObject) (httpapi.GetProductListResponseObject, error) {
-	// Default sort and order
-	sort := "name"
-	order := "desc"
-
-	// Override with request params if provided
-	if request.Params.Sort != nil {
-		sort = string(*request.Params.Sort)
-	}
-
-	if request.Params.Order != nil {
-		order = string(*request.Params.Order)
+func (h *productHandler) GetProductList(ctx context.Context, params httpapi.GetProductListParams) (httpapi.GetProductListRes, error) {
+	var categoryID *string
+	if params.CategoryId.IsSet() {
+		categoryID = &params.CategoryId.Value
 	}
 
 	q := query.GetListProductsQuery{
-		Page:       request.Params.Page,
-		Size:       request.Params.Size,
-		CategoryID: request.Params.CategoryId,
-		Sort:       sort,
-		Order:      order,
+		Page:       params.Page,
+		Size:       params.Size,
+		CategoryID: categoryID,
+		Sort:       string(params.Sort.Or(httpapi.GetProductListSortName)),
+		Order:      string(params.Order.Or(httpapi.GetProductListOrderDesc)),
 	}
 
-	result, err := h.getListHandler.Handle(c, q)
+	result, err := h.getListHandler.Handle(ctx, q)
 	if err != nil {
 		return nil, err
 	}
 
-	response := httpapi.GetProductList200JSONResponse{
-		Items: make([]httpapi.ProductResponse, 0, len(result.Items)),
+	return &httpapi.ProductListResponse{
+		Items: lo.Map(result.Items, func(p *productview.ProductView, _ int) httpapi.ProductResponse {
+			return *toProductResponse(p)
+		}),
 		Page:  result.Page,
 		Size:  result.Size,
 		Total: int(result.Total),
-	}
-
-	for _, p := range result.Items {
-		response.Items = append(response.Items, toProductResponse(p))
-	}
-
-	return response, nil
+	}, nil
 }

@@ -2,6 +2,9 @@ package http
 
 import (
 	"github.com/Sokol111/ecommerce-product-query-service-api/gen/httpapi"
+	"github.com/gin-gonic/gin"
+	"go.opentelemetry.io/otel/metric"
+	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/fx"
 )
 
@@ -9,14 +12,20 @@ func NewHttpHandlerModule() fx.Option {
 	return fx.Options(
 		fx.Provide(
 			newProductHandler,
-			newStrictHandler,
-			// Provide OpenAPI spec - gin module will auto-register validation middleware
-			httpapi.GetSwagger,
+			newOgenServer,
 		),
-		fx.Invoke(httpapi.RegisterHandlers),
+		fx.Invoke(registerOgenRoutes),
 	)
 }
 
-func newStrictHandler(ssi httpapi.StrictServerInterface) httpapi.ServerInterface {
-	return httpapi.NewStrictHandler(ssi, nil)
+func newOgenServer(handler httpapi.Handler, tracerProvider trace.TracerProvider, meterProvider metric.MeterProvider) (*httpapi.Server, error) {
+	return httpapi.NewServer(
+		handler,
+		httpapi.WithTracerProvider(tracerProvider),
+		httpapi.WithMeterProvider(meterProvider),
+	)
+}
+
+func registerOgenRoutes(engine *gin.Engine, server *httpapi.Server) {
+	engine.Any("/v1/*path", gin.WrapH(server))
 }

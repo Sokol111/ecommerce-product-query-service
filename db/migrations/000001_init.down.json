@@ -1,14 +1,14 @@
 [
     {
-        "dropIndexes": "product_detail",
-        "index": "product_detail_enabled_v1",
+        "dropIndexes": "product_view",
+        "index": "product_view_enabled_v1",
         "writeConcern": {
             "w": "majority"
         }
     },
     {
-        "dropIndexes": "product_detail",
-        "index": "product_detail_categoryId_v1",
+        "dropIndexes": "product_view",
+        "index": "product_view_categoryId_v1",
         "writeConcern": {
             "w": "majority"
         }

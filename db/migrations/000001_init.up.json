@@ -1,15 +1,15 @@
 [
     {
-        "createIndexes": "product_detail",
+        "createIndexes": "product_view",
         "indexes": [
             {
-                "name": "product_detail_enabled_v1",
+                "name": "product_view_enabled_v1",
                 "key": {
                     "enabled": 1
                 }
             },
             {
-                "name": "product_detail_categoryId_v1",
+                "name": "product_view_categoryId_v1",
                 "key": {
                     "categoryId": 1
                 }

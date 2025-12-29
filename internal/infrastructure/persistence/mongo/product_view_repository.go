@@ -20,7 +20,7 @@ type productViewRepository struct {
 }
 
 func newProductViewRepository(mongo commonsmongo.Mongo, mapper *productViewMapper) (productview.Repository, error) {
-	collection := mongo.GetCollection("product_detail")
+	collection := mongo.GetCollection("product_view")
 	genericRepo, err := commonsmongo.NewGenericRepository(collection, mapper)
 	if err != nil {
 		return nil, err

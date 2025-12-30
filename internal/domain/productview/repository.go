@@ -6,12 +6,23 @@ import (
 	commonsmongo "github.com/Sokol111/ecommerce-commons/pkg/persistence/mongo"
 )
 
+// AttributeFilter represents a filter for a single attribute
+type AttributeFilter struct {
+	Slug   string
+	Values []string // For single/multiple type attributes
+	Min    *float64 // For range type attributes
+	Max    *float64 // For range type attributes
+}
+
 type ListQuery struct {
-	Page       int
-	Size       int
-	CategoryID *string
-	Sort       string
-	Order      string
+	Page             int
+	Size             int
+	CategoryID       *string
+	Sort             string
+	Order            string
+	MinPrice         *float64
+	MaxPrice         *float64
+	AttributeFilters []AttributeFilter
 }
 
 type Repository interface {

@@ -12,5 +12,12 @@
         "writeConcern": {
             "w": "majority"
         }
+    },
+    {
+        "dropIndexes": "product_view",
+        "index": "product_view_attrs_wildcard_v1",
+        "writeConcern": {
+            "w": "majority"
+        }
     }
 ]

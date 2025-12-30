@@ -5,6 +5,7 @@ import "time"
 // ProductAttribute represents product attribute with value
 type ProductAttribute struct {
 	AttributeID  string
+	Slug         string
 	Value        *string
 	Values       []string
 	NumericValue *float32
@@ -26,10 +27,11 @@ type ProductView struct {
 	CreatedAt   time.Time
 	ModifiedAt  time.Time
 	Attributes  []ProductAttribute
+	Attrs       map[string]any // Denormalized attributes map for filtering (slug -> value)
 }
 
 // Reconstruct creates a ProductView from persistence data
-func Reconstruct(id string, version int, name string, description *string, price float32, quantity int, imageID *string, imageURL *string, categoryID *string, enabled bool, createdAt, modifiedAt time.Time, attributes []ProductAttribute) *ProductView {
+func Reconstruct(id string, version int, name string, description *string, price float32, quantity int, imageID *string, imageURL *string, categoryID *string, enabled bool, createdAt, modifiedAt time.Time, attributes []ProductAttribute, attrs map[string]any) *ProductView {
 	return &ProductView{
 		ID:          id,
 		Version:     version,
@@ -44,11 +46,12 @@ func Reconstruct(id string, version int, name string, description *string, price
 		CreatedAt:   createdAt,
 		ModifiedAt:  modifiedAt,
 		Attributes:  attributes,
+		Attrs:       attrs,
 	}
 }
 
 // NewProductView creates a new product view from event data
-func NewProductView(id string, version int, name string, description *string, price float32, quantity int, imageID *string, categoryID *string, enabled bool, createdAt, modifiedAt time.Time, attributes []ProductAttribute) *ProductView {
+func NewProductView(id string, version int, name string, description *string, price float32, quantity int, imageID *string, categoryID *string, enabled bool, createdAt, modifiedAt time.Time, attributes []ProductAttribute, attrs map[string]any) *ProductView {
 	return &ProductView{
 		ID:          id,
 		Version:     version,
@@ -63,5 +66,6 @@ func NewProductView(id string, version int, name string, description *string, pr
 		CreatedAt:   createdAt,
 		ModifiedAt:  modifiedAt,
 		Attributes:  attributes,
+		Attrs:       attrs,
 	}
 }

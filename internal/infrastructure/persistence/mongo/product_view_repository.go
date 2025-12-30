@@ -135,6 +135,39 @@ func (r *productViewRepository) FindList(ctx context.Context, query productview.
 		filter = append(filter, bson.E{Key: "categoryId", Value: *query.CategoryID})
 	}
 
+	// Price filters
+	if query.MinPrice != nil || query.MaxPrice != nil {
+		priceFilter := bson.M{}
+		if query.MinPrice != nil {
+			priceFilter["$gte"] = *query.MinPrice
+		}
+		if query.MaxPrice != nil {
+			priceFilter["$lte"] = *query.MaxPrice
+		}
+		filter = append(filter, bson.E{Key: "price", Value: priceFilter})
+	}
+
+	// Attribute filters (using denormalized attrs field)
+	for _, attrFilter := range query.AttributeFilters {
+		attrKey := "attrs." + attrFilter.Slug
+
+		if len(attrFilter.Values) > 0 {
+			// For single/multiple type: match any of the values
+			// Works for both single value (string) and array of values
+			filter = append(filter, bson.E{Key: attrKey, Value: bson.M{"$in": attrFilter.Values}})
+		} else if attrFilter.Min != nil || attrFilter.Max != nil {
+			// For range type: numeric comparison
+			rangeFilter := bson.M{}
+			if attrFilter.Min != nil {
+				rangeFilter["$gte"] = *attrFilter.Min
+			}
+			if attrFilter.Max != nil {
+				rangeFilter["$lte"] = *attrFilter.Max
+			}
+			filter = append(filter, bson.E{Key: attrKey, Value: rangeFilter})
+		}
+	}
+
 	var sortBson bson.D
 	if query.Sort != "" {
 		sortOrder := 1 // asc

@@ -42,7 +42,7 @@ func (h *productHandler) Process(ctx context.Context, event any) error {
 }
 
 func (h *productHandler) handleProductCreated(ctx context.Context, e *product_events.ProductCreatedEvent) error {
-	attributes := mapEventAttributes(e.Payload.Attributes)
+	attributes, attrs := mapEventAttributes(e.Payload.Attributes)
 
 	view := productview.NewProductView(
 		e.Payload.ProductID,
@@ -57,6 +57,7 @@ func (h *productHandler) handleProductCreated(ctx context.Context, e *product_ev
 		e.Payload.CreatedAt,
 		e.Payload.ModifiedAt,
 		attributes,
+		attrs,
 	)
 
 	if err := h.repo.Upsert(ctx, view); err != nil {
@@ -72,7 +73,7 @@ func (h *productHandler) handleProductCreated(ctx context.Context, e *product_ev
 }
 
 func (h *productHandler) handleProductUpdated(ctx context.Context, e *product_events.ProductUpdatedEvent) error {
-	attributes := mapEventAttributes(e.Payload.Attributes)
+	attributes, attrs := mapEventAttributes(e.Payload.Attributes)
 
 	view := productview.NewProductView(
 		e.Payload.ProductID,
@@ -87,6 +88,7 @@ func (h *productHandler) handleProductUpdated(ctx context.Context, e *product_ev
 		e.Payload.CreatedAt,
 		e.Payload.ModifiedAt,
 		attributes,
+		attrs,
 	)
 
 	if err := h.repo.Upsert(ctx, view); err != nil {
@@ -101,12 +103,15 @@ func (h *productHandler) handleProductUpdated(ctx context.Context, e *product_ev
 	return nil
 }
 
-func mapEventAttributes(eventAttrs *[]product_events.ProductAttribute) []productview.ProductAttribute {
+// mapEventAttributes converts event attributes to domain attributes and builds attrs map for filtering
+func mapEventAttributes(eventAttrs *[]product_events.ProductAttribute) ([]productview.ProductAttribute, map[string]any) {
 	if eventAttrs == nil || len(*eventAttrs) == 0 {
-		return nil
+		return nil, nil
 	}
 
 	attributes := make([]productview.ProductAttribute, len(*eventAttrs))
+	attrs := make(map[string]any, len(*eventAttrs))
+
 	for i, attr := range *eventAttrs {
 		var values []string
 		if attr.Values != nil {
@@ -114,12 +119,24 @@ func mapEventAttributes(eventAttrs *[]product_events.ProductAttribute) []product
 		}
 		attributes[i] = productview.ProductAttribute{
 			AttributeID:  attr.AttributeID,
+			Slug:         attr.Slug,
 			Value:        attr.Value,
 			Values:       values,
 			NumericValue: attr.NumericValue,
 		}
+
+		// Build attrs map for filtering
+		if attr.Slug != "" {
+			if attr.NumericValue != nil {
+				attrs[attr.Slug] = *attr.NumericValue
+			} else if attr.Values != nil && len(*attr.Values) > 0 {
+				attrs[attr.Slug] = *attr.Values
+			} else if attr.Value != nil {
+				attrs[attr.Slug] = *attr.Value
+			}
+		}
 	}
-	return attributes
+	return attributes, attrs
 }
 
 func (h *productHandler) handleProductImagePromoted(ctx context.Context, e *image_events.ProductImagePromotedEvent) error {

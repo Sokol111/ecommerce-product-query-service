@@ -7,6 +7,7 @@ import (
 // productAttributeEntity represents the MongoDB subdocument structure for product attributes
 type productAttributeEntity struct {
 	AttributeID  string   `bson:"attributeId"`
+	Slug         string   `bson:"slug"`
 	Value        *string  `bson:"value,omitempty"`
 	Values       []string `bson:"values,omitempty"`
 	NumericValue *float32 `bson:"numericValue,omitempty"`
@@ -27,4 +28,5 @@ type productViewEntity struct {
 	CreatedAt   time.Time                `bson:"createdAt"`
 	ModifiedAt  time.Time                `bson:"modifiedAt"`
 	Attributes  []productAttributeEntity `bson:"attributes,omitempty"`
+	Attrs       map[string]any           `bson:"attrs,omitempty"` // Denormalized for filtering
 }

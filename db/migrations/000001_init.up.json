@@ -13,6 +13,12 @@
                 "key": {
                     "categoryId": 1
                 }
+            },
+            {
+                "name": "product_view_attrs_wildcard_v1",
+                "key": {
+                    "attrs.$**": 1
+                }
             }
         ],
         "commitQuorum": "majority",

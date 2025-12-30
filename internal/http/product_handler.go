@@ -2,6 +2,7 @@ package http
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"net/url"
 
@@ -109,12 +110,37 @@ func (h *productHandler) GetProductList(ctx context.Context, params httpapi.GetP
 		categoryID = &params.CategoryId.Value
 	}
 
+	// Parse price filters
+	var minPrice, maxPrice *float64
+	if params.MinPrice.IsSet() {
+		minPrice = &params.MinPrice.Value
+	}
+	if params.MaxPrice.IsSet() {
+		maxPrice = &params.MaxPrice.Value
+	}
+
+	// Parse attribute filters from JSON string
+	var attributeFilters []query.AttributeFilter
+	if params.AttributeFilters.IsSet() && params.AttributeFilters.Value != "" {
+		if err := json.Unmarshal([]byte(params.AttributeFilters.Value), &attributeFilters); err != nil {
+			return &httpapi.GetProductListBadRequest{
+				Status: 400,
+				Type:   *aboutBlankURL,
+				Title:  "Invalid attributeFilters format",
+				Detail: httpapi.NewOptString("attributeFilters must be a valid JSON array"),
+			}, nil
+		}
+	}
+
 	q := query.GetListProductsQuery{
-		Page:       params.Page,
-		Size:       params.Size,
-		CategoryID: categoryID,
-		Sort:       string(params.Sort.Or(httpapi.GetProductListSortName)),
-		Order:      string(params.Order.Or(httpapi.GetProductListOrderDesc)),
+		Page:             params.Page,
+		Size:             params.Size,
+		CategoryID:       categoryID,
+		Sort:             string(params.Sort.Or(httpapi.GetProductListSortName)),
+		Order:            string(params.Order.Or(httpapi.GetProductListOrderDesc)),
+		MinPrice:         minPrice,
+		MaxPrice:         maxPrice,
+		AttributeFilters: attributeFilters,
 	}
 
 	result, err := h.getListHandler.Handle(ctx, q)

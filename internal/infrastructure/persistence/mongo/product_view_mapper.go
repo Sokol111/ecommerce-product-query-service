@@ -18,6 +18,7 @@ func (m *productViewMapper) ToEntity(domain *productview.ProductView) *productVi
 		for i, attr := range domain.Attributes {
 			attributes[i] = productAttributeEntity{
 				AttributeID:  attr.AttributeID,
+				Slug:         attr.Slug,
 				Value:        attr.Value,
 				Values:       attr.Values,
 				NumericValue: attr.NumericValue,
@@ -39,6 +40,7 @@ func (m *productViewMapper) ToEntity(domain *productview.ProductView) *productVi
 		CreatedAt:   domain.CreatedAt,
 		ModifiedAt:  domain.ModifiedAt,
 		Attributes:  attributes,
+		Attrs:       domain.Attrs,
 	}
 }
 
@@ -49,6 +51,7 @@ func (m *productViewMapper) ToDomain(entity *productViewEntity) *productview.Pro
 		for i, attr := range entity.Attributes {
 			attributes[i] = productview.ProductAttribute{
 				AttributeID:  attr.AttributeID,
+				Slug:         attr.Slug,
 				Value:        attr.Value,
 				Values:       attr.Values,
 				NumericValue: attr.NumericValue,
@@ -70,6 +73,7 @@ func (m *productViewMapper) ToDomain(entity *productViewEntity) *productview.Pro
 		entity.CreatedAt,
 		entity.ModifiedAt,
 		attributes,
+		entity.Attrs,
 	)
 }
 

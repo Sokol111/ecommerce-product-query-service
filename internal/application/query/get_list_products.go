@@ -7,12 +7,23 @@ import (
 	"github.com/Sokol111/ecommerce-product-query-service/internal/domain/productview"
 )
 
+// AttributeFilter represents a filter for a single attribute
+type AttributeFilter struct {
+	Slug   string
+	Values []string // For single/multiple type attributes
+	Min    *float64 // For range type attributes
+	Max    *float64 // For range type attributes
+}
+
 type GetListProductsQuery struct {
-	Page       int
-	Size       int
-	CategoryID *string
-	Sort       string
-	Order      string
+	Page             int
+	Size             int
+	CategoryID       *string
+	Sort             string
+	Order            string
+	MinPrice         *float64
+	MaxPrice         *float64
+	AttributeFilters []AttributeFilter
 }
 
 type ListProductsResult struct {
@@ -35,12 +46,29 @@ func NewGetListProductsHandler(repo productview.Repository) GetListProductsQuery
 }
 
 func (h *getListProductsHandler) Handle(ctx context.Context, query GetListProductsQuery) (*ListProductsResult, error) {
+	// Map attribute filters from application to domain
+	var domainFilters []productview.AttributeFilter
+	if len(query.AttributeFilters) > 0 {
+		domainFilters = make([]productview.AttributeFilter, len(query.AttributeFilters))
+		for i, f := range query.AttributeFilters {
+			domainFilters[i] = productview.AttributeFilter{
+				Slug:   f.Slug,
+				Values: f.Values,
+				Min:    f.Min,
+				Max:    f.Max,
+			}
+		}
+	}
+
 	listQuery := productview.ListQuery{
-		Page:       query.Page,
-		Size:       query.Size,
-		CategoryID: query.CategoryID,
-		Sort:       query.Sort,
-		Order:      query.Order,
+		Page:             query.Page,
+		Size:             query.Size,
+		CategoryID:       query.CategoryID,
+		Sort:             query.Sort,
+		Order:            query.Order,
+		MinPrice:         query.MinPrice,
+		MaxPrice:         query.MaxPrice,
+		AttributeFilters: domainFilters,
 	}
 
 	result, err := h.repo.FindList(ctx, listQuery)

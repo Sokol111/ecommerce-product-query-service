@@ -48,12 +48,22 @@ func toOptFloat64(f *float32) httpapi.OptFloat64 {
 	return httpapi.NewOptFloat64(float64(*f))
 }
 
+func toOptBool(b *bool) httpapi.OptBool {
+	if b == nil {
+		return httpapi.OptBool{}
+	}
+	return httpapi.NewOptBool(*b)
+}
+
 func toProductAttributeResponse(attr productview.ProductAttribute, _ int) httpapi.ProductAttribute {
 	return httpapi.ProductAttribute{
 		AttributeId:  attr.AttributeID,
-		Value:        toOptString(attr.Value),
-		Values:       attr.Values,
+		Slug:         attr.Slug,
+		OptionSlug:   toOptString(attr.OptionSlug),
+		OptionSlugs:  attr.OptionSlugs,
 		NumericValue: toOptFloat64(attr.NumericValue),
+		TextValue:    toOptString(attr.TextValue),
+		BooleanValue: toOptBool(attr.BooleanValue),
 	}
 }
 

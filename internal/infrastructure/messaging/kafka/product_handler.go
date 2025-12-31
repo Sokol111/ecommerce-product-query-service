@@ -113,26 +113,32 @@ func mapEventAttributes(eventAttrs *[]product_events.ProductAttribute) ([]produc
 	attrs := make(map[string]any, len(*eventAttrs))
 
 	for i, attr := range *eventAttrs {
-		var values []string
-		if attr.Values != nil {
-			values = *attr.Values
+		var optionSlugs []string
+		if attr.OptionSlugs != nil {
+			optionSlugs = *attr.OptionSlugs
 		}
 		attributes[i] = productview.ProductAttribute{
 			AttributeID:  attr.AttributeID,
 			Slug:         attr.Slug,
-			Value:        attr.Value,
-			Values:       values,
+			OptionSlug:   attr.OptionSlug,
+			OptionSlugs:  optionSlugs,
 			NumericValue: attr.NumericValue,
+			TextValue:    attr.TextValue,
+			BooleanValue: attr.BooleanValue,
 		}
 
 		// Build attrs map for filtering
 		if attr.Slug != "" {
 			if attr.NumericValue != nil {
 				attrs[attr.Slug] = *attr.NumericValue
-			} else if attr.Values != nil && len(*attr.Values) > 0 {
-				attrs[attr.Slug] = *attr.Values
-			} else if attr.Value != nil {
-				attrs[attr.Slug] = *attr.Value
+			} else if attr.OptionSlugs != nil && len(*attr.OptionSlugs) > 0 {
+				attrs[attr.Slug] = *attr.OptionSlugs
+			} else if attr.OptionSlug != nil {
+				attrs[attr.Slug] = *attr.OptionSlug
+			} else if attr.TextValue != nil {
+				attrs[attr.Slug] = *attr.TextValue
+			} else if attr.BooleanValue != nil {
+				attrs[attr.Slug] = *attr.BooleanValue
 			}
 		}
 	}

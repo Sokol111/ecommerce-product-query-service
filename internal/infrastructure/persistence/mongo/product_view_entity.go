@@ -8,9 +8,11 @@ import (
 type productAttributeEntity struct {
 	AttributeID  string   `bson:"attributeId"`
 	Slug         string   `bson:"slug"`
-	Value        *string  `bson:"value,omitempty"`
-	Values       []string `bson:"values,omitempty"`
+	OptionSlug   *string  `bson:"optionSlug,omitempty"`
+	OptionSlugs  []string `bson:"optionSlugs,omitempty"`
 	NumericValue *float32 `bson:"numericValue,omitempty"`
+	TextValue    *string  `bson:"textValue,omitempty"`
+	BooleanValue *bool    `bson:"booleanValue,omitempty"`
 }
 
 // productViewEntity represents the MongoDB document structure for product views

@@ -6,9 +6,11 @@ import "time"
 type ProductAttribute struct {
 	AttributeID  string
 	Slug         string
-	Value        *string
-	Values       []string
+	OptionSlug   *string
+	OptionSlugs  []string
 	NumericValue *float32
+	TextValue    *string
+	BooleanValue *bool
 }
 
 // ProductView - read model for product queries (CQRS query side)

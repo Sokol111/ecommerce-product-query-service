@@ -19,9 +19,11 @@ func (m *productViewMapper) ToEntity(domain *productview.ProductView) *productVi
 			attributes[i] = productAttributeEntity{
 				AttributeID:  attr.AttributeID,
 				Slug:         attr.Slug,
-				Value:        attr.Value,
-				Values:       attr.Values,
+				OptionSlug:   attr.OptionSlug,
+				OptionSlugs:  attr.OptionSlugs,
 				NumericValue: attr.NumericValue,
+				TextValue:    attr.TextValue,
+				BooleanValue: attr.BooleanValue,
 			}
 		}
 	}
@@ -52,9 +54,11 @@ func (m *productViewMapper) ToDomain(entity *productViewEntity) *productview.Pro
 			attributes[i] = productview.ProductAttribute{
 				AttributeID:  attr.AttributeID,
 				Slug:         attr.Slug,
-				Value:        attr.Value,
-				Values:       attr.Values,
+				OptionSlug:   attr.OptionSlug,
+				OptionSlugs:  attr.OptionSlugs,
 				NumericValue: attr.NumericValue,
+				TextValue:    attr.TextValue,
+				BooleanValue: attr.BooleanValue,
 			}
 		}
 	}

@@ -3,7 +3,8 @@ module github.com/Sokol111/ecommerce-product-query-service
 go 1.25.5
 
 require (
-	github.com/Sokol111/ecommerce-commons v0.2.3
+	github.com/Sokol111/ecommerce-attribute-service-api v1.0.0
+	github.com/Sokol111/ecommerce-commons v0.2.4
 	github.com/Sokol111/ecommerce-image-service-api v1.0.29
 	github.com/Sokol111/ecommerce-product-query-service-api v1.0.14
 	github.com/Sokol111/ecommerce-product-service-api v1.0.97
@@ -53,7 +54,6 @@ require (
 	github.com/golang-migrate/migrate/v4 v4.19.1 // indirect
 	github.com/golang/snappy v1.0.0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
-	github.com/gorilla/mux v1.8.1 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.3 // indirect
 	github.com/hamba/avro/v2 v2.30.0 // indirect
 	github.com/joho/godotenv v1.5.1 // indirect
@@ -69,7 +69,6 @@ require (
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826 // indirect
 	github.com/montanaflynn/stats v0.7.1 // indirect
-	github.com/oapi-codegen/gin-middleware v1.0.2 // indirect
 	github.com/oapi-codegen/runtime v1.1.1 // indirect
 	github.com/oasdiff/yaml v0.0.0-20250309154309-f31be36b4037 // indirect
 	github.com/oasdiff/yaml3 v0.0.0-20250309153720-d2182401db90 // indirect
@@ -92,7 +91,6 @@ require (
 	github.com/xdg-go/stringprep v1.0.4 // indirect
 	github.com/youmark/pkcs8 v0.0.0-20240726163527-a2c0da244d78 // indirect
 	go.opentelemetry.io/auto/sdk v1.2.1 // indirect
-	go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin v0.64.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/go.mongodb.org/mongo-driver/mongo/otelmongo v0.64.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/runtime v0.64.0 // indirect
 	go.opentelemetry.io/otel v1.39.0 // indirect

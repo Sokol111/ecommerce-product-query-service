@@ -4,13 +4,13 @@ import "time"
 
 // ProductAttribute represents product attribute with value
 type ProductAttribute struct {
-	AttributeID  string
-	Slug         string
-	OptionSlug   *string
-	OptionSlugs  []string
-	NumericValue *float32
-	TextValue    *string
-	BooleanValue *bool
+	AttributeID      string
+	Slug             string
+	OptionSlugValue  *string
+	OptionSlugValues []string
+	NumericValue     *float32
+	TextValue        *string
+	BooleanValue     *bool
 }
 
 // ProductView - read model for product queries (CQRS query side)

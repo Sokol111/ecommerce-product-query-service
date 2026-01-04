@@ -57,13 +57,13 @@ func toOptBool(b *bool) httpapi.OptBool {
 
 func toProductAttributeResponse(attr productview.ProductAttribute, _ int) httpapi.ProductAttribute {
 	return httpapi.ProductAttribute{
-		AttributeId:  attr.AttributeID,
-		Slug:         attr.Slug,
-		OptionSlug:   toOptString(attr.OptionSlug),
-		OptionSlugs:  attr.OptionSlugs,
-		NumericValue: toOptFloat64(attr.NumericValue),
-		TextValue:    toOptString(attr.TextValue),
-		BooleanValue: toOptBool(attr.BooleanValue),
+		AttributeId:      attr.AttributeID,
+		Slug:             attr.Slug,
+		OptionSlugValue:  toOptString(attr.OptionSlugValue),
+		OptionSlugValues: attr.OptionSlugValues,
+		NumericValue:     toOptFloat64(attr.NumericValue),
+		TextValue:        toOptString(attr.TextValue),
+		BooleanValue:     toOptBool(attr.BooleanValue),
 	}
 }
 

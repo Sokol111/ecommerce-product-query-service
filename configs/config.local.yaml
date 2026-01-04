@@ -26,6 +26,10 @@ kafka:
       - name: "product-events"
         topic: "catalog.product.events"
 
+clients:
+  attribute-service:
+    base-url: "http://ecommerce-attribute-service:8080"
+
 observability:
   otel-collector-endpoint: "otel-collector-opentelemetry-collector.observability.svc:4317"
   tracing:

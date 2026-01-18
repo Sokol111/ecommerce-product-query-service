@@ -4,12 +4,12 @@ import (
 	"context"
 	"fmt"
 
+	catalog_events "github.com/Sokol111/ecommerce-catalog-service-api/gen/events"
 	"github.com/Sokol111/ecommerce-commons/pkg/core/logger"
 	"github.com/Sokol111/ecommerce-commons/pkg/messaging/kafka/consumer"
 	image_events "github.com/Sokol111/ecommerce-image-service-api/gen/events"
 	"github.com/Sokol111/ecommerce-product-query-service/internal/domain/productview"
 	"github.com/Sokol111/ecommerce-product-query-service/internal/infrastructure/client"
-	product_events "github.com/Sokol111/ecommerce-product-service-api/gen/events"
 	"go.uber.org/zap"
 )
 
@@ -28,9 +28,9 @@ func newProductHandler(repo productview.Repository, attrClient client.AttributeC
 func (h *productHandler) Process(ctx context.Context, event any) error {
 	switch evt := event.(type) {
 	// Product events
-	case *product_events.ProductCreatedEvent:
+	case *catalog_events.ProductCreatedEvent:
 		return h.handleProductCreated(ctx, evt)
-	case *product_events.ProductUpdatedEvent:
+	case *catalog_events.ProductUpdatedEvent:
 		return h.handleProductUpdated(ctx, evt)
 
 	// Image events (published to same topic with product_id as partition key)
@@ -44,7 +44,7 @@ func (h *productHandler) Process(ctx context.Context, event any) error {
 	}
 }
 
-func (h *productHandler) handleProductCreated(ctx context.Context, e *product_events.ProductCreatedEvent) error {
+func (h *productHandler) handleProductCreated(ctx context.Context, e *catalog_events.ProductCreatedEvent) error {
 	attributes, attrs, err := h.enrichAndMapAttributes(ctx, e.Payload.Attributes)
 	if err != nil {
 		return fmt.Errorf("failed to enrich attributes: %w", err)
@@ -78,7 +78,7 @@ func (h *productHandler) handleProductCreated(ctx context.Context, e *product_ev
 	return nil
 }
 
-func (h *productHandler) handleProductUpdated(ctx context.Context, e *product_events.ProductUpdatedEvent) error {
+func (h *productHandler) handleProductUpdated(ctx context.Context, e *catalog_events.ProductUpdatedEvent) error {
 	attributes, attrs, err := h.enrichAndMapAttributes(ctx, e.Payload.Attributes)
 	if err != nil {
 		return fmt.Errorf("failed to enrich attributes: %w", err)
@@ -113,7 +113,7 @@ func (h *productHandler) handleProductUpdated(ctx context.Context, e *product_ev
 }
 
 // enrichAndMapAttributes fetches attribute slugs from attribute-service and builds domain attributes
-func (h *productHandler) enrichAndMapAttributes(ctx context.Context, eventAttrs *[]product_events.ProductAttribute) ([]productview.ProductAttribute, map[string]any, error) {
+func (h *productHandler) enrichAndMapAttributes(ctx context.Context, eventAttrs *[]catalog_events.ProductAttribute) ([]productview.ProductAttribute, map[string]any, error) {
 	if eventAttrs == nil || len(*eventAttrs) == 0 {
 		return nil, nil, nil
 	}

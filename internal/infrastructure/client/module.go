@@ -10,15 +10,20 @@ import (
 
 	catalogapi "github.com/Sokol111/ecommerce-catalog-service-api/gen/httpapi"
 	httpclient "github.com/Sokol111/ecommerce-commons/pkg/http/client"
+	"github.com/Sokol111/ecommerce-commons/pkg/security/token"
 )
 
-// serviceSecuritySource provides service-to-service authentication
-type serviceSecuritySource struct{}
+// serviceSecuritySource provides service-to-service authentication.
+type serviceSecuritySource struct {
+	serviceToken string
+}
 
-func (s *serviceSecuritySource) BearerAuth(ctx context.Context, operationName catalogapi.OperationName) (catalogapi.BearerAuth, error) {
-	// For service-to-service calls, we pass through the token from context
-	// In production, this should use a service account token
-	return catalogapi.BearerAuth{Token: ""}, nil
+func newServiceSecuritySource(cfg token.Config) *serviceSecuritySource {
+	return &serviceSecuritySource{serviceToken: cfg.ServiceToken}
+}
+
+func (s *serviceSecuritySource) BearerAuth(_ context.Context, _ catalogapi.OperationName) (catalogapi.BearerAuth, error) {
+	return catalogapi.BearerAuth{Token: s.serviceToken}, nil
 }
 
 // AttributeClientModule provides AttributeClient with its dependencies
@@ -27,6 +32,7 @@ func AttributeClientModule() fx.Option {
 		fx.Provide(
 			fx.Private,
 			httpclient.ProvideHTTPClient("catalog-service"),
+			newServiceSecuritySource,
 		),
 		fx.Provide(provideCatalogApiClient),
 		fx.Provide(newAttributeClient),
@@ -36,12 +42,13 @@ func AttributeClientModule() fx.Option {
 func provideCatalogApiClient(
 	httpClient *http.Client,
 	cfg httpclient.ClientConfig,
+	securitySource *serviceSecuritySource,
 	tracerProvider trace.TracerProvider,
 	meterProvider metric.MeterProvider,
 ) (*catalogapi.Client, error) {
 	return catalogapi.NewClient(
 		cfg.BaseURL,
-		&serviceSecuritySource{},
+		securitySource,
 		catalogapi.WithClient(httpClient),
 		catalogapi.WithTracerProvider(tracerProvider),
 		catalogapi.WithMeterProvider(meterProvider),

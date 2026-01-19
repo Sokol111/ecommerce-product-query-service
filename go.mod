@@ -4,7 +4,7 @@ go 1.25.5
 
 require (
 	github.com/Sokol111/ecommerce-catalog-service-api v1.0.1
-	github.com/Sokol111/ecommerce-commons v0.2.4
+	github.com/Sokol111/ecommerce-commons v0.2.6
 	github.com/Sokol111/ecommerce-image-service-api v1.0.29
 	github.com/Sokol111/ecommerce-product-query-service-api v1.0.14
 	github.com/google/uuid v1.6.0
@@ -18,6 +18,8 @@ require (
 )
 
 require (
+	aidanwoods.dev/go-paseto v1.6.0 // indirect
+	aidanwoods.dev/go-result v0.3.1 // indirect
 	github.com/apapsch/go-jsonmerge/v2 v2.0.0 // indirect
 	github.com/bytedance/gopkg v0.1.3 // indirect
 	github.com/bytedance/sonic v1.14.2 // indirect
@@ -86,7 +88,6 @@ require (
 	github.com/sagikazarmark/locafero v0.12.0 // indirect
 	github.com/segmentio/asm v1.2.1 // indirect
 	github.com/shopspring/decimal v1.4.0 // indirect
-	github.com/sony/gobreaker v1.0.0 // indirect
 	github.com/spf13/afero v1.15.0 // indirect
 	github.com/spf13/cast v1.10.0 // indirect
 	github.com/spf13/pflag v1.0.10 // indirect

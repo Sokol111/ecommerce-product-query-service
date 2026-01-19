@@ -1,3 +1,7 @@
+aidanwoods.dev/go-paseto v1.6.0 h1:JA/PFk5lVsB/PakQGqnfmik/1tIHjE6F0UoPPoAO/nU=
+aidanwoods.dev/go-paseto v1.6.0/go.mod h1:LdqkL0Z2mLL0kBWzmHVR1cGFniX+zyOweQmbNKYrDxQ=
+aidanwoods.dev/go-result v0.3.1 h1:ee98hpohYUVYbI+pa6gUHTyoRerIudgjky/IPSowDXQ=
+aidanwoods.dev/go-result v0.3.1/go.mod h1:GKnFg8p/BKulVD3wsfULiPhpPmrTWyiTIbz8EWuUqSk=
 dario.cat/mergo v1.0.0 h1:AGCNq9Evsj31mOgNPcLyXc+4PNABt905YmuqPYYpBWk=
 dario.cat/mergo v1.0.0/go.mod h1:uNxQE+84aUszobStD9th8a29P2fMDhsBdgRYvZOxGmk=
 github.com/AdaLogics/go-fuzz-headers v0.0.0-20230811130428-ced1acdcaa24 h1:bvDV9vkmnHYOMsOr4WLk+Vo07yKIzd94sVoIqshQ4bU=
@@ -15,8 +19,8 @@ github.com/Microsoft/hcsshim v0.11.5/go.mod h1:MV8xMfmECjl5HdO7U/3/hFVnkmSBjAjmA
 github.com/RaveNoX/go-jsoncommentstrip v1.0.0/go.mod h1:78ihd09MekBnJnxpICcwzCMzGrKSKYe4AqU6PDYYpjk=
 github.com/Sokol111/ecommerce-catalog-service-api v1.0.1 h1:ny9Io/eEhqemSBc1wFUROrmSX3NY8n20n8DHpTMMtUg=
 github.com/Sokol111/ecommerce-catalog-service-api v1.0.1/go.mod h1:ufHtqoWe9zhfW90hD5OE1jx9m9EnDJBSlJUUD8EReUo=
-github.com/Sokol111/ecommerce-commons v0.2.4 h1:lyE0CB8+FPgVi2zYuR9CArwMpTA4tgS6snk6RvPx7DU=
-github.com/Sokol111/ecommerce-commons v0.2.4/go.mod h1:/undETtJrqNemiXMiZUovPBUs1JrgwUExtkRtF/Bj6Q=
+github.com/Sokol111/ecommerce-commons v0.2.6 h1:vV0Z5QDaP9PH+XeNKzCpJjdlsi2Sxv0zO3l8oZGWAKQ=
+github.com/Sokol111/ecommerce-commons v0.2.6/go.mod h1:i7h4zVkrG5ZKx5dtgl69jf4+oSW3WNOvm3q9UjU5sMQ=
 github.com/Sokol111/ecommerce-image-service-api v1.0.29 h1:DbFJ5EO04NDlVMF4/93Lxez5F8ukywMdyYwijslr+Wc=
 github.com/Sokol111/ecommerce-image-service-api v1.0.29/go.mod h1:XmIysz6Si3CNcmQd+3BYwC7u35g74TijFptitmQrfRA=
 github.com/Sokol111/ecommerce-product-query-service-api v1.0.14 h1:d2xkIR9EkoEqDupF3GzzeG3kzgcsJsqJETOLnUi07JE=
@@ -408,8 +412,6 @@ github.com/sirupsen/logrus v1.9.3 h1:dueUQJ1C2q9oE3F7wvmSGAaVtTmUizReu6fjN8uqzbQ
 github.com/sirupsen/logrus v1.9.3/go.mod h1:naHLuLoDiP4jHNo9R0sCBMtWGeIprob74mVsIT4qYEQ=
 github.com/skratchdot/open-golang v0.0.0-20200116055534-eef842397966 h1:JIAuq3EEf9cgbU6AtGPK4CTG3Zf6CKMNqf0MHTggAUA=
 github.com/skratchdot/open-golang v0.0.0-20200116055534-eef842397966/go.mod h1:sUM3LWHvSMaG192sy56D9F7CNvL7jUJVXoqM1QKLnog=
-github.com/sony/gobreaker v1.0.0 h1:feX5fGGXSl3dYd4aHZItw+FpHLvvoaqkawKjVNiFMNQ=
-github.com/sony/gobreaker v1.0.0/go.mod h1:ZKptC7FHNvhBz7dN2LGjPVBz2sZJmc0/PkyDJOjmxWY=
 github.com/spf13/afero v1.15.0 h1:b/YBCLWAJdFWJTN9cLhiXXcD7mzKn9Dm86dNnfyQw1I=
 github.com/spf13/afero v1.15.0/go.mod h1:NC2ByUVxtQs4b3sIUphxK0NioZnmxgyCrfzeuq8lxMg=
 github.com/spf13/cast v1.10.0 h1:h2x0u2shc1QuLHfxi+cTJvs30+ZAHOGRic8uyGTDWxY=

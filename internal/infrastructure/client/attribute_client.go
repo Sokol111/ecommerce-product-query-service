@@ -4,37 +4,44 @@ import (
 	"context"
 	"fmt"
 
-	attributeapi "github.com/Sokol111/ecommerce-attribute-service-api/gen/httpapi"
+	"github.com/google/uuid"
+
+	catalogapi "github.com/Sokol111/ecommerce-catalog-service-api/gen/httpapi"
 )
 
-// AttributeClient provides access to attribute-service
+// AttributeClient provides access to catalog-service for attributes
 type AttributeClient interface {
 	// GetAttributeByID fetches attribute data by ID
-	GetAttributeByID(ctx context.Context, id string) (*attributeapi.AttributeResponse, error)
+	GetAttributeByID(ctx context.Context, id string) (*catalogapi.AttributeResponse, error)
 	// GetAttributesByIDs fetches multiple attributes by their IDs
-	GetAttributesByIDs(ctx context.Context, ids []string) (map[string]*attributeapi.AttributeResponse, error)
+	GetAttributesByIDs(ctx context.Context, ids []string) (map[string]*catalogapi.AttributeResponse, error)
 }
 
 type attributeClient struct {
-	client *attributeapi.Client
+	client *catalogapi.Client
 }
 
 // newAttributeClient creates a new attribute client
-func newAttributeClient(client *attributeapi.Client) AttributeClient {
+func newAttributeClient(client *catalogapi.Client) AttributeClient {
 	return &attributeClient{client: client}
 }
 
 // GetAttributeByID fetches a single attribute by ID
-func (c *attributeClient) GetAttributeByID(ctx context.Context, id string) (*attributeapi.AttributeResponse, error) {
-	res, err := c.client.GetAttributeById(ctx, attributeapi.GetAttributeByIdParams{ID: id})
+func (c *attributeClient) GetAttributeByID(ctx context.Context, id string) (*catalogapi.AttributeResponse, error) {
+	uid, err := uuid.Parse(id)
+	if err != nil {
+		return nil, fmt.Errorf("invalid attribute ID %s: %w", id, err)
+	}
+
+	res, err := c.client.GetAttributeById(ctx, catalogapi.GetAttributeByIdParams{ID: uid})
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch attribute %s: %w", id, err)
 	}
 
 	switch v := res.(type) {
-	case *attributeapi.AttributeResponse:
+	case *catalogapi.AttributeResponse:
 		return v, nil
-	case *attributeapi.GetAttributeByIdNotFound:
+	case *catalogapi.GetAttributeByIdNotFound:
 		return nil, fmt.Errorf("attribute %s not found", id)
 	default:
 		return nil, fmt.Errorf("unexpected response type for attribute %s", id)
@@ -42,10 +49,10 @@ func (c *attributeClient) GetAttributeByID(ctx context.Context, id string) (*att
 }
 
 // GetAttributesByIDs fetches multiple attributes by their IDs
-func (c *attributeClient) GetAttributesByIDs(ctx context.Context, ids []string) (map[string]*attributeapi.AttributeResponse, error) {
-	result := make(map[string]*attributeapi.AttributeResponse, len(ids))
+func (c *attributeClient) GetAttributesByIDs(ctx context.Context, ids []string) (map[string]*catalogapi.AttributeResponse, error) {
+	result := make(map[string]*catalogapi.AttributeResponse, len(ids))
 
-	// TODO: Consider adding batch endpoint to attribute-service for better performance
+	// TODO: Consider adding batch endpoint to catalog-service for better performance
 	for _, id := range ids {
 		attr, err := c.GetAttributeByID(ctx, id)
 		if err != nil {

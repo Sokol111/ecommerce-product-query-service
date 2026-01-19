@@ -112,7 +112,7 @@ func (h *productHandler) handleProductUpdated(ctx context.Context, e *catalog_ev
 	return nil
 }
 
-// enrichAndMapAttributes fetches attribute slugs from attribute-service and builds domain attributes
+// enrichAndMapAttributes fetches attribute slugs from catalog-service and builds domain attributes
 func (h *productHandler) enrichAndMapAttributes(ctx context.Context, eventAttrs *[]catalog_events.ProductAttribute) ([]productview.ProductAttribute, map[string]any, error) {
 	if eventAttrs == nil || len(*eventAttrs) == 0 {
 		return nil, nil, nil
@@ -124,7 +124,7 @@ func (h *productHandler) enrichAndMapAttributes(ctx context.Context, eventAttrs 
 		ids[i] = attr.AttributeID
 	}
 
-	// Fetch attribute data from attribute-service
+	// Fetch attribute data from catalog-service
 	attrDataMap, err := h.attrClient.GetAttributesByIDs(ctx, ids)
 	if err != nil {
 		return nil, nil, err

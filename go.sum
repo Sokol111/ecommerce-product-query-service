@@ -13,8 +13,6 @@ github.com/Microsoft/go-winio v0.6.2/go.mod h1:yd8OoFMLzJbo9gZq8j5qaps8bJ9aShtEA
 github.com/Microsoft/hcsshim v0.11.5 h1:haEcLNpj9Ka1gd3B3tAEs9CpE0c+1IhoL59w/exYU38=
 github.com/Microsoft/hcsshim v0.11.5/go.mod h1:MV8xMfmECjl5HdO7U/3/hFVnkmSBjAjmA09d4bExKcU=
 github.com/RaveNoX/go-jsoncommentstrip v1.0.0/go.mod h1:78ihd09MekBnJnxpICcwzCMzGrKSKYe4AqU6PDYYpjk=
-github.com/Sokol111/ecommerce-attribute-service-api v1.0.0 h1:r4SVfVj+EzXYEbW0tWGmJvIFtD+mA0a7a4Rxs36Y/Nk=
-github.com/Sokol111/ecommerce-attribute-service-api v1.0.0/go.mod h1:cyx9lPak5ZKd5SPpXIYnTZMbvQ5ykfMA8/pnFdBSYbU=
 github.com/Sokol111/ecommerce-catalog-service-api v1.0.1 h1:ny9Io/eEhqemSBc1wFUROrmSX3NY8n20n8DHpTMMtUg=
 github.com/Sokol111/ecommerce-catalog-service-api v1.0.1/go.mod h1:ufHtqoWe9zhfW90hD5OE1jx9m9EnDJBSlJUUD8EReUo=
 github.com/Sokol111/ecommerce-commons v0.2.4 h1:lyE0CB8+FPgVi2zYuR9CArwMpTA4tgS6snk6RvPx7DU=

@@ -120,11 +120,24 @@ func mapAttributes(eventAttrs *[]catalog_events.ProductAttribute) ([]productview
 			optionSlugValues = *attr.OptionSlugValues
 		}
 
+		var optionNames []string
+		if attr.OptionNames != nil {
+			optionNames = *attr.OptionNames
+		}
+
 		attributes[i] = productview.ProductAttribute{
 			AttributeID:      attr.AttributeID,
 			Slug:             slug,
+			Name:             attr.AttributeName,
+			Type:             productview.AttributeType(attr.AttributeType),
+			Unit:             attr.AttributeUnit,
+			Role:             productview.AttributeRole(attr.Role),
+			SortOrder:        attr.SortOrder,
 			OptionSlugValue:  attr.OptionSlugValue,
 			OptionSlugValues: optionSlugValues,
+			OptionName:       attr.OptionName,
+			OptionNames:      optionNames,
+			OptionColorCode:  attr.OptionColorCode,
 			NumericValue:     attr.NumericValue,
 			TextValue:        attr.TextValue,
 			BooleanValue:     attr.BooleanValue,

@@ -9,19 +9,16 @@ import (
 	"github.com/Sokol111/ecommerce-commons/pkg/messaging/kafka/consumer"
 	image_events "github.com/Sokol111/ecommerce-image-service-api/gen/events"
 	"github.com/Sokol111/ecommerce-product-query-service/internal/domain/productview"
-	"github.com/Sokol111/ecommerce-product-query-service/internal/infrastructure/client"
 	"go.uber.org/zap"
 )
 
 type productHandler struct {
-	repo       productview.Repository
-	attrClient client.AttributeClient
+	repo productview.Repository
 }
 
-func newProductHandler(repo productview.Repository, attrClient client.AttributeClient) *productHandler {
+func newProductHandler(repo productview.Repository) *productHandler {
 	return &productHandler{
-		repo:       repo,
-		attrClient: attrClient,
+		repo: repo,
 	}
 }
 
@@ -45,10 +42,7 @@ func (h *productHandler) Process(ctx context.Context, event any) error {
 }
 
 func (h *productHandler) handleProductCreated(ctx context.Context, e *catalog_events.ProductCreatedEvent) error {
-	attributes, attrs, err := h.enrichAndMapAttributes(ctx, e.Payload.Attributes)
-	if err != nil {
-		return fmt.Errorf("failed to enrich attributes: %w", err)
-	}
+	attributes, attrs := mapAttributes(e.Payload.Attributes)
 
 	view := productview.NewProductView(
 		e.Payload.ProductID,
@@ -79,10 +73,7 @@ func (h *productHandler) handleProductCreated(ctx context.Context, e *catalog_ev
 }
 
 func (h *productHandler) handleProductUpdated(ctx context.Context, e *catalog_events.ProductUpdatedEvent) error {
-	attributes, attrs, err := h.enrichAndMapAttributes(ctx, e.Payload.Attributes)
-	if err != nil {
-		return fmt.Errorf("failed to enrich attributes: %w", err)
-	}
+	attributes, attrs := mapAttributes(e.Payload.Attributes)
 
 	view := productview.NewProductView(
 		e.Payload.ProductID,
@@ -112,30 +103,17 @@ func (h *productHandler) handleProductUpdated(ctx context.Context, e *catalog_ev
 	return nil
 }
 
-// enrichAndMapAttributes fetches attribute slugs from catalog-service and builds domain attributes
-func (h *productHandler) enrichAndMapAttributes(ctx context.Context, eventAttrs *[]catalog_events.ProductAttribute) ([]productview.ProductAttribute, map[string]any, error) {
+// mapAttributes converts event attributes to domain attributes using slug from message
+func mapAttributes(eventAttrs *[]catalog_events.ProductAttribute) ([]productview.ProductAttribute, map[string]any) {
 	if eventAttrs == nil || len(*eventAttrs) == 0 {
-		return nil, nil, nil
-	}
-
-	// Collect attribute IDs
-	ids := make([]string, len(*eventAttrs))
-	for i, attr := range *eventAttrs {
-		ids[i] = attr.AttributeID
-	}
-
-	// Fetch attribute data from catalog-service
-	attrDataMap, err := h.attrClient.GetAttributesByIDs(ctx, ids)
-	if err != nil {
-		return nil, nil, err
+		return nil, nil
 	}
 
 	attributes := make([]productview.ProductAttribute, len(*eventAttrs))
 	attrs := make(map[string]any, len(*eventAttrs))
 
 	for i, attr := range *eventAttrs {
-		attrData := attrDataMap[attr.AttributeID]
-		slug := attrData.Slug
+		slug := attr.AttributeSlug
 
 		var optionSlugValues []string
 		if attr.OptionSlugValues != nil {
@@ -168,7 +146,7 @@ func (h *productHandler) enrichAndMapAttributes(ctx context.Context, eventAttrs 
 		}
 	}
 
-	return attributes, attrs, nil
+	return attributes, attrs
 }
 
 func (h *productHandler) handleProductImagePromoted(ctx context.Context, e *image_events.ProductImagePromotedEvent) error {

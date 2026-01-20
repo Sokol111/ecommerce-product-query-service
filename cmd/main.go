@@ -8,7 +8,6 @@ import (
 	"github.com/Sokol111/ecommerce-product-query-service-api/gen/httpapi"
 	"github.com/Sokol111/ecommerce-product-query-service/internal/application"
 	"github.com/Sokol111/ecommerce-product-query-service/internal/http"
-	"github.com/Sokol111/ecommerce-product-query-service/internal/infrastructure/client"
 	"github.com/Sokol111/ecommerce-product-query-service/internal/infrastructure/messaging/kafka"
 	"github.com/Sokol111/ecommerce-product-query-service/internal/infrastructure/persistence/mongo"
 	"go.uber.org/fx"
@@ -25,7 +24,6 @@ var AppModules = fx.Options(
 
 	// Domain & Application
 	mongo.Module(),
-	client.AttributeClientModule(),
 	application.Module(),
 
 	// Messaging

@@ -7,7 +7,6 @@ require (
 	github.com/Sokol111/ecommerce-commons v0.2.6
 	github.com/Sokol111/ecommerce-image-service-api v1.0.29
 	github.com/Sokol111/ecommerce-product-query-service-api v1.0.14
-	github.com/google/uuid v1.6.0
 	github.com/ogen-go/ogen v1.18.0
 	github.com/samber/lo v1.52.0
 	go.mongodb.org/mongo-driver v1.17.6
@@ -62,6 +61,7 @@ require (
 	github.com/goccy/go-yaml v1.19.1 // indirect
 	github.com/golang-migrate/migrate/v4 v4.19.1 // indirect
 	github.com/golang/snappy v1.0.0 // indirect
+	github.com/google/uuid v1.6.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.3 // indirect
 	github.com/hamba/avro/v2 v2.30.0 // indirect
 	github.com/joho/godotenv v1.5.1 // indirect

@@ -26,10 +26,6 @@ kafka:
       - name: "catalog-events"
         topic: "catalog.product.events"
 
-clients:
-  catalog-service:
-    base-url: "http://ecommerce-catalog-service:8080"
-
 security:
   token:
     public-key: "eb6ebefd6a2b0a304d43c2ccca329aef0a1439d429dbe8ca9b6190622ce38341"

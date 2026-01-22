@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"net/url"
+	"strconv"
 
 	"github.com/samber/lo"
 
@@ -45,18 +46,12 @@ func toOptString(s *string) httpapi.OptString {
 	return httpapi.NewOptString(*s)
 }
 
-func toOptFloat64(f *float32) httpapi.OptFloat64 {
-	if f == nil {
-		return httpapi.OptFloat64{}
-	}
-	return httpapi.NewOptFloat64(float64(*f))
+func formatFloat(f float32) string {
+	return strconv.FormatFloat(float64(f), 'f', -1, 32)
 }
 
-func toOptBool(b *bool) httpapi.OptBool {
-	if b == nil {
-		return httpapi.OptBool{}
-	}
-	return httpapi.NewOptBool(*b)
+func formatBool(b bool) string {
+	return strconv.FormatBool(b)
 }
 
 // toProductAttributes joins product attributes with master data and maps to HTTP response
@@ -83,38 +78,64 @@ func (h *productHandler) toProductAttributes(ctx context.Context, attrs []produc
 			return httpapi.ProductAttribute{}, false
 		}
 
-		result := httpapi.ProductAttribute{
-			AttributeId:      attr.AttributeID,
-			Slug:             attr.Slug,
-			Name:             master.Name,
-			Type:             httpapi.ProductAttributeType(master.Type),
-			Unit:             toOptString(master.Unit),
-			Role:             httpapi.ProductAttributeRole("specification"),
-			SortOrder:        i,
-			OptionSlugValue:  toOptString(attr.OptionSlugValue),
-			OptionSlugValues: attr.OptionSlugValues,
-			NumericValue:     toOptFloat64(attr.NumericValue),
-			TextValue:        toOptString(attr.TextValue),
-			BooleanValue:     toOptBool(attr.BooleanValue),
-		}
-
 		optionsBySlug := lo.KeyBy(master.Options, func(opt attributeview.AttributeOption) string { return opt.Slug })
 
-		if attr.OptionSlugValue != nil {
-			if opt, ok := optionsBySlug[*attr.OptionSlugValue]; ok {
-				result.OptionName = toOptString(&opt.Name)
-				result.OptionColorCode = toOptString(opt.ColorCode)
+		// Build unified values array based on attribute type
+		var values []httpapi.AttributeValue
+
+		switch master.Type {
+		case "single":
+			if attr.OptionSlugValue != nil {
+				if opt, ok := optionsBySlug[*attr.OptionSlugValue]; ok {
+					values = []httpapi.AttributeValue{{
+						Slug:      toOptString(attr.OptionSlugValue),
+						Value:     opt.Name,
+						ColorCode: toOptString(opt.ColorCode),
+					}}
+				}
+			}
+		case "multiple":
+			values = lo.FilterMap(attr.OptionSlugValues, func(slug string, _ int) (httpapi.AttributeValue, bool) {
+				opt, ok := optionsBySlug[slug]
+				if !ok {
+					return httpapi.AttributeValue{}, false
+				}
+				return httpapi.AttributeValue{
+					Slug:      httpapi.NewOptString(slug),
+					Value:     opt.Name,
+					ColorCode: toOptString(opt.ColorCode),
+				}, true
+			})
+		case "range":
+			if attr.NumericValue != nil {
+				values = []httpapi.AttributeValue{{
+					Value: formatFloat(*attr.NumericValue),
+				}}
+			}
+		case "boolean":
+			if attr.BooleanValue != nil {
+				values = []httpapi.AttributeValue{{
+					Value: formatBool(*attr.BooleanValue),
+				}}
+			}
+		case "text":
+			if attr.TextValue != nil {
+				values = []httpapi.AttributeValue{{
+					Value: *attr.TextValue,
+				}}
 			}
 		}
 
-		if len(attr.OptionSlugValues) > 0 {
-			result.OptionNames = lo.FilterMap(attr.OptionSlugValues, func(slug string, _ int) (string, bool) {
-				opt, ok := optionsBySlug[slug]
-				return opt.Name, ok
-			})
-		}
-
-		return result, true
+		return httpapi.ProductAttribute{
+			AttributeId: attr.AttributeID,
+			Slug:        attr.Slug,
+			Name:        master.Name,
+			Type:        httpapi.ProductAttributeType(master.Type),
+			Unit:        toOptString(master.Unit),
+			Role:        httpapi.ProductAttributeRole("specification"),
+			SortOrder:   i,
+			Values:      values,
+		}, true
 	}), nil
 }
 

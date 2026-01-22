@@ -11,6 +11,7 @@ import (
 func Module() fx.Option {
 	return fx.Options(
 		consumer.RegisterHandlerAndConsumer("catalog-events", newProductHandler),
+		consumer.RegisterHandlerAndConsumer("catalog-attribute-events", newAttributeHandler),
 		fx.Invoke(registerProductSchemas),
 		fx.Invoke(registerImageSchemas),
 	)

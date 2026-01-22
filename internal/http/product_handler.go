@@ -11,6 +11,7 @@ import (
 	"github.com/Sokol111/ecommerce-commons/pkg/persistence"
 	"github.com/Sokol111/ecommerce-product-query-service-api/gen/httpapi"
 	"github.com/Sokol111/ecommerce-product-query-service/internal/application/query"
+	"github.com/Sokol111/ecommerce-product-query-service/internal/domain/attributeview"
 	"github.com/Sokol111/ecommerce-product-query-service/internal/domain/productview"
 )
 
@@ -18,17 +19,20 @@ type productHandler struct {
 	getByIDHandler   query.GetProductByIDQueryHandler
 	getRandomHandler query.GetRandomProductsQueryHandler
 	getListHandler   query.GetListProductsQueryHandler
+	attributeRepo    attributeview.Repository
 }
 
 func newProductHandler(
 	getByIDHandler query.GetProductByIDQueryHandler,
 	getRandomHandler query.GetRandomProductsQueryHandler,
 	getListHandler query.GetListProductsQueryHandler,
+	attributeRepo attributeview.Repository,
 ) httpapi.Handler {
 	return &productHandler{
 		getByIDHandler:   getByIDHandler,
 		getRandomHandler: getRandomHandler,
 		getListHandler:   getListHandler,
+		attributeRepo:    attributeRepo,
 	}
 }
 
@@ -55,27 +59,71 @@ func toOptBool(b *bool) httpapi.OptBool {
 	return httpapi.NewOptBool(*b)
 }
 
-func toProductAttributeResponse(attr productview.ProductAttribute, _ int) httpapi.ProductAttribute {
-	return httpapi.ProductAttribute{
-		AttributeId:      attr.AttributeID,
-		Slug:             attr.Slug,
-		Name:             attr.Name,
-		Type:             httpapi.ProductAttributeType(attr.Type),
-		Unit:             toOptString(attr.Unit),
-		Role:             httpapi.ProductAttributeRole(attr.Role),
-		SortOrder:        attr.SortOrder,
-		OptionSlugValue:  toOptString(attr.OptionSlugValue),
-		OptionSlugValues: attr.OptionSlugValues,
-		OptionName:       toOptString(attr.OptionName),
-		OptionNames:      attr.OptionNames,
-		OptionColorCode:  toOptString(attr.OptionColorCode),
-		NumericValue:     toOptFloat64(attr.NumericValue),
-		TextValue:        toOptString(attr.TextValue),
-		BooleanValue:     toOptBool(attr.BooleanValue),
+// toProductAttributes joins product attributes with master data and maps to HTTP response
+func (h *productHandler) toProductAttributes(ctx context.Context, attrs []productview.ProductAttribute) ([]httpapi.ProductAttribute, error) {
+	if len(attrs) == 0 {
+		return nil, nil
 	}
+
+	attrIDs := lo.Uniq(lo.Map(attrs, func(attr productview.ProductAttribute, _ int) string {
+		return attr.AttributeID
+	}))
+
+	masterAttrs, err := h.attributeRepo.FindByIDs(ctx, attrIDs)
+	if err != nil {
+		return nil, err
+	}
+
+	attrByID := lo.KeyBy(masterAttrs, func(attr *attributeview.AttributeView) string { return attr.ID })
+
+	return lo.FilterMap(attrs, func(attr productview.ProductAttribute, i int) (httpapi.ProductAttribute, bool) {
+		master, ok := attrByID[attr.AttributeID]
+		// Skip if master data not found or attribute is disabled
+		if !ok || !master.Enabled {
+			return httpapi.ProductAttribute{}, false
+		}
+
+		result := httpapi.ProductAttribute{
+			AttributeId:      attr.AttributeID,
+			Slug:             attr.Slug,
+			Name:             master.Name,
+			Type:             httpapi.ProductAttributeType(master.Type),
+			Unit:             toOptString(master.Unit),
+			Role:             httpapi.ProductAttributeRole("specification"),
+			SortOrder:        i,
+			OptionSlugValue:  toOptString(attr.OptionSlugValue),
+			OptionSlugValues: attr.OptionSlugValues,
+			NumericValue:     toOptFloat64(attr.NumericValue),
+			TextValue:        toOptString(attr.TextValue),
+			BooleanValue:     toOptBool(attr.BooleanValue),
+		}
+
+		optionsBySlug := lo.KeyBy(master.Options, func(opt attributeview.AttributeOption) string { return opt.Slug })
+
+		if attr.OptionSlugValue != nil {
+			if opt, ok := optionsBySlug[*attr.OptionSlugValue]; ok {
+				result.OptionName = toOptString(&opt.Name)
+				result.OptionColorCode = toOptString(opt.ColorCode)
+			}
+		}
+
+		if len(attr.OptionSlugValues) > 0 {
+			result.OptionNames = lo.FilterMap(attr.OptionSlugValues, func(slug string, _ int) (string, bool) {
+				opt, ok := optionsBySlug[slug]
+				return opt.Name, ok
+			})
+		}
+
+		return result, true
+	}), nil
 }
 
-func toProductResponse(p *productview.ProductView) *httpapi.ProductResponse {
+func (h *productHandler) toProductResponse(ctx context.Context, p *productview.ProductView) (*httpapi.ProductResponse, error) {
+	attrs, err := h.toProductAttributes(ctx, p.Attributes)
+	if err != nil {
+		return nil, err
+	}
+
 	return &httpapi.ProductResponse{
 		ID:          p.ID,
 		Name:        p.Name,
@@ -85,8 +133,8 @@ func toProductResponse(p *productview.ProductView) *httpapi.ProductResponse {
 		ImageId:     toOptString(p.ImageID),
 		ImageUrl:    toOptString(p.ImageURL),
 		CategoryId:  toOptString(p.CategoryID),
-		Attributes:  lo.Map(p.Attributes, toProductAttributeResponse),
-	}
+		Attributes:  attrs,
+	}, nil
 }
 
 func (h *productHandler) GetProductById(ctx context.Context, params httpapi.GetProductByIdParams) (httpapi.GetProductByIdRes, error) {
@@ -104,7 +152,12 @@ func (h *productHandler) GetProductById(ctx context.Context, params httpapi.GetP
 		return nil, err
 	}
 
-	return toProductResponse(found), nil
+	resp, err := h.toProductResponse(ctx, found)
+	if err != nil {
+		return nil, err
+	}
+
+	return resp, nil
 }
 
 func (h *productHandler) GetRandomProducts(ctx context.Context, params httpapi.GetRandomProductsParams) (httpapi.GetRandomProductsRes, error) {
@@ -115,9 +168,14 @@ func (h *productHandler) GetRandomProducts(ctx context.Context, params httpapi.G
 		return nil, err
 	}
 
-	response := lo.Map(products, func(p *productview.ProductView, _ int) httpapi.ProductResponse {
-		return *toProductResponse(p)
-	})
+	response := make([]httpapi.ProductResponse, len(products))
+	for i, p := range products {
+		resp, err := h.toProductResponse(ctx, p)
+		if err != nil {
+			return nil, err
+		}
+		response[i] = *resp
+	}
 
 	return (*httpapi.GetRandomProductsOKApplicationJSON)(&response), nil
 }
@@ -166,10 +224,17 @@ func (h *productHandler) GetProductList(ctx context.Context, params httpapi.GetP
 		return nil, err
 	}
 
+	items := make([]httpapi.ProductResponse, len(result.Items))
+	for i, p := range result.Items {
+		resp, err := h.toProductResponse(ctx, p)
+		if err != nil {
+			return nil, err
+		}
+		items[i] = *resp
+	}
+
 	return &httpapi.ProductListResponse{
-		Items: lo.Map(result.Items, func(p *productview.ProductView, _ int) httpapi.ProductResponse {
-			return *toProductResponse(p)
-		}),
+		Items: items,
 		Page:  result.Page,
 		Size:  result.Size,
 		Total: int(result.Total),

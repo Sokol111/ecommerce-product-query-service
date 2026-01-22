@@ -2,39 +2,14 @@ package productview
 
 import "time"
 
-// AttributeType represents the type of attribute
-type AttributeType string
-
-const (
-	AttributeTypeSingle   AttributeType = "single"
-	AttributeTypeMultiple AttributeType = "multiple"
-	AttributeTypeRange    AttributeType = "range"
-	AttributeTypeBoolean  AttributeType = "boolean"
-	AttributeTypeText     AttributeType = "text"
-)
-
-// AttributeRole defines how an attribute is used in a category
-type AttributeRole string
-
-const (
-	AttributeRoleVariant       AttributeRole = "variant"
-	AttributeRoleSpecification AttributeRole = "specification"
-)
-
-// ProductAttribute represents product attribute with value and display information
+// ProductAttribute represents product attribute reference with value.
+// Only immutable fields (IDs, slugs) and product-specific values are stored.
+// Mutable display data (name, unit, color_code) should be joined from attributes collection.
 type ProductAttribute struct {
 	AttributeID      string
-	Slug             string
-	Name             string        // Display name of the attribute
-	Type             AttributeType // Attribute type for rendering
-	Unit             *string       // Unit for range type attributes
-	Role             AttributeRole // How attribute is used (variant/specification)
-	SortOrder        int           // Display order of the attribute
+	Slug             string // Immutable attribute slug for filtering
 	OptionSlugValue  *string
 	OptionSlugValues []string
-	OptionName       *string  // Display name of selected option (for single type)
-	OptionNames      []string // Display names of selected options (for multiple type)
-	OptionColorCode  *string  // Hex color code for color attributes
 	NumericValue     *float32
 	TextValue        *string
 	BooleanValue     *bool

@@ -9,5 +9,7 @@ func Module() fx.Option {
 	return fx.Provide(
 		newProductViewMapper,
 		newProductViewRepository,
+		newAttributeViewMapper,
+		newAttributeViewRepository,
 	)
 }

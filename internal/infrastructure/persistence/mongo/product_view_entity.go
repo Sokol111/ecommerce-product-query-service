@@ -4,20 +4,14 @@ import (
 	"time"
 )
 
-// productAttributeEntity represents the MongoDB subdocument structure for product attributes
+// productAttributeEntity represents the MongoDB subdocument structure for product attributes.
+// Only immutable fields (IDs, slugs) and product-specific values are stored.
+// Mutable display data should be joined from attributes collection.
 type productAttributeEntity struct {
 	AttributeID      string   `bson:"attributeId"`
 	Slug             string   `bson:"slug"`
-	Name             string   `bson:"name"`
-	Type             string   `bson:"type"`
-	Unit             *string  `bson:"unit,omitempty"`
-	Role             string   `bson:"role"`
-	SortOrder        int      `bson:"sortOrder"`
 	OptionSlugValue  *string  `bson:"optionSlugValue,omitempty"`
 	OptionSlugValues []string `bson:"optionSlugValues,omitempty"`
-	OptionName       *string  `bson:"optionName,omitempty"`
-	OptionNames      []string `bson:"optionNames,omitempty"`
-	OptionColorCode  *string  `bson:"optionColorCode,omitempty"`
 	NumericValue     *float32 `bson:"numericValue,omitempty"`
 	TextValue        *string  `bson:"textValue,omitempty"`
 	BooleanValue     *bool    `bson:"booleanValue,omitempty"`

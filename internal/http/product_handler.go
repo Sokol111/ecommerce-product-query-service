@@ -54,13 +54,13 @@ func formatBool(b bool) string {
 	return strconv.FormatBool(b)
 }
 
-// toProductAttributes joins product attributes with master data and maps to HTTP response
-func (h *productHandler) toProductAttributes(ctx context.Context, attrs []productview.ProductAttribute) ([]httpapi.ProductAttribute, error) {
+// toAttributeValues joins product attributes with master data and maps to HTTP response
+func (h *productHandler) toAttributeValues(ctx context.Context, attrs []productview.AttributeValue) ([]httpapi.AttributeValue, error) {
 	if len(attrs) == 0 {
 		return nil, nil
 	}
 
-	attrIDs := lo.Uniq(lo.Map(attrs, func(attr productview.ProductAttribute, _ int) string {
+	attrIDs := lo.Uniq(lo.Map(attrs, func(attr productview.AttributeValue, _ int) string {
 		return attr.AttributeID
 	}))
 
@@ -71,23 +71,23 @@ func (h *productHandler) toProductAttributes(ctx context.Context, attrs []produc
 
 	attrByID := lo.KeyBy(masterAttrs, func(attr *attributeview.AttributeView) string { return attr.ID })
 
-	return lo.FilterMap(attrs, func(attr productview.ProductAttribute, i int) (httpapi.ProductAttribute, bool) {
+	return lo.FilterMap(attrs, func(attr productview.AttributeValue, i int) (httpapi.AttributeValue, bool) {
 		master, ok := attrByID[attr.AttributeID]
 		// Skip if master data not found or attribute is disabled
 		if !ok || !master.Enabled {
-			return httpapi.ProductAttribute{}, false
+			return httpapi.AttributeValue{}, false
 		}
 
 		optionsBySlug := lo.KeyBy(master.Options, func(opt attributeview.AttributeOption) string { return opt.Slug })
 
 		// Build unified values array based on attribute type
-		var values []httpapi.AttributeValue
+		var values []httpapi.AttributeValueItem
 
 		switch master.Type {
 		case "single":
 			if attr.OptionSlugValue != nil {
 				if opt, ok := optionsBySlug[*attr.OptionSlugValue]; ok {
-					values = []httpapi.AttributeValue{{
+					values = []httpapi.AttributeValueItem{{
 						Slug:      toOptString(attr.OptionSlugValue),
 						Value:     opt.Name,
 						ColorCode: toOptString(opt.ColorCode),
@@ -95,12 +95,12 @@ func (h *productHandler) toProductAttributes(ctx context.Context, attrs []produc
 				}
 			}
 		case "multiple":
-			values = lo.FilterMap(attr.OptionSlugValues, func(slug string, _ int) (httpapi.AttributeValue, bool) {
+			values = lo.FilterMap(attr.OptionSlugValues, func(slug string, _ int) (httpapi.AttributeValueItem, bool) {
 				opt, ok := optionsBySlug[slug]
 				if !ok {
-					return httpapi.AttributeValue{}, false
+					return httpapi.AttributeValueItem{}, false
 				}
-				return httpapi.AttributeValue{
+				return httpapi.AttributeValueItem{
 					Slug:      httpapi.NewOptString(slug),
 					Value:     opt.Name,
 					ColorCode: toOptString(opt.ColorCode),
@@ -108,31 +108,31 @@ func (h *productHandler) toProductAttributes(ctx context.Context, attrs []produc
 			})
 		case "range":
 			if attr.NumericValue != nil {
-				values = []httpapi.AttributeValue{{
+				values = []httpapi.AttributeValueItem{{
 					Value: formatFloat(*attr.NumericValue),
 				}}
 			}
 		case "boolean":
 			if attr.BooleanValue != nil {
-				values = []httpapi.AttributeValue{{
+				values = []httpapi.AttributeValueItem{{
 					Value: formatBool(*attr.BooleanValue),
 				}}
 			}
 		case "text":
 			if attr.TextValue != nil {
-				values = []httpapi.AttributeValue{{
+				values = []httpapi.AttributeValueItem{{
 					Value: *attr.TextValue,
 				}}
 			}
 		}
 
-		return httpapi.ProductAttribute{
+		return httpapi.AttributeValue{
 			AttributeId: attr.AttributeID,
 			Slug:        attr.Slug,
 			Name:        master.Name,
-			Type:        httpapi.ProductAttributeType(master.Type),
+			Type:        httpapi.AttributeValueType(master.Type),
 			Unit:        toOptString(master.Unit),
-			Role:        httpapi.ProductAttributeRole("specification"),
+			Role:        httpapi.AttributeValueRole("specification"),
 			SortOrder:   i,
 			Values:      values,
 		}, true
@@ -140,7 +140,7 @@ func (h *productHandler) toProductAttributes(ctx context.Context, attrs []produc
 }
 
 func (h *productHandler) toProductResponse(ctx context.Context, p *productview.ProductView) (*httpapi.ProductResponse, error) {
-	attrs, err := h.toProductAttributes(ctx, p.Attributes)
+	attrs, err := h.toAttributeValues(ctx, p.Attributes)
 	if err != nil {
 		return nil, err
 	}

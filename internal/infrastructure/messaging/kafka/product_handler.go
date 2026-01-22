@@ -106,12 +106,12 @@ func (h *productHandler) handleProductUpdated(ctx context.Context, e *catalog_ev
 // mapAttributes converts event attributes to domain attributes.
 // Only immutable fields (IDs, slugs) and product-specific values are mapped.
 // Mutable display data will be joined from attributes collection at read time.
-func mapAttributes(eventAttrs *[]catalog_events.ProductAttribute) ([]productview.ProductAttribute, map[string]any) {
+func mapAttributes(eventAttrs *[]catalog_events.AttributeValue) ([]productview.AttributeValue, map[string]any) {
 	if eventAttrs == nil || len(*eventAttrs) == 0 {
 		return nil, nil
 	}
 
-	attributes := make([]productview.ProductAttribute, len(*eventAttrs))
+	attributes := make([]productview.AttributeValue, len(*eventAttrs))
 	attrs := make(map[string]any, len(*eventAttrs))
 
 	for i, attr := range *eventAttrs {
@@ -122,7 +122,7 @@ func mapAttributes(eventAttrs *[]catalog_events.ProductAttribute) ([]productview
 			optionSlugValues = *attr.OptionSlugValues
 		}
 
-		attributes[i] = productview.ProductAttribute{
+		attributes[i] = productview.AttributeValue{
 			AttributeID:      attr.AttributeID,
 			Slug:             slug,
 			OptionSlugValue:  attr.OptionSlugValue,

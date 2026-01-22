@@ -47,11 +47,11 @@ func (m *productViewMapper) ToEntity(domain *productview.ProductView) *productVi
 }
 
 func (m *productViewMapper) ToDomain(entity *productViewEntity) *productview.ProductView {
-	var attributes []productview.ProductAttribute
+	var attributes []productview.AttributeValue
 	if len(entity.Attributes) > 0 {
-		attributes = make([]productview.ProductAttribute, len(entity.Attributes))
+		attributes = make([]productview.AttributeValue, len(entity.Attributes))
 		for i, attr := range entity.Attributes {
-			attributes[i] = productview.ProductAttribute{
+			attributes[i] = productview.AttributeValue{
 				AttributeID:      attr.AttributeID,
 				Slug:             attr.Slug,
 				OptionSlugValue:  attr.OptionSlugValue,

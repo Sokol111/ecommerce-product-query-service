@@ -2,10 +2,10 @@ package productview
 
 import "time"
 
-// ProductAttribute represents product attribute reference with value.
+// AttributeValue represents product attribute reference with value.
 // Only immutable fields (IDs, slugs) and product-specific values are stored.
 // Mutable display data (name, unit, color_code) should be joined from attributes collection.
-type ProductAttribute struct {
+type AttributeValue struct {
 	AttributeID      string
 	Slug             string // Immutable attribute slug for filtering
 	OptionSlugValue  *string
@@ -30,12 +30,12 @@ type ProductView struct {
 	Enabled     bool
 	CreatedAt   time.Time
 	ModifiedAt  time.Time
-	Attributes  []ProductAttribute
+	Attributes  []AttributeValue
 	Attrs       map[string]any // Denormalized attributes map for filtering (slug -> value)
 }
 
 // Reconstruct creates a ProductView from persistence data
-func Reconstruct(id string, version int, name string, description *string, price float32, quantity int, imageID *string, imageURL *string, categoryID *string, enabled bool, createdAt, modifiedAt time.Time, attributes []ProductAttribute, attrs map[string]any) *ProductView {
+func Reconstruct(id string, version int, name string, description *string, price float32, quantity int, imageID *string, imageURL *string, categoryID *string, enabled bool, createdAt, modifiedAt time.Time, attributes []AttributeValue, attrs map[string]any) *ProductView {
 	return &ProductView{
 		ID:          id,
 		Version:     version,
@@ -55,7 +55,7 @@ func Reconstruct(id string, version int, name string, description *string, price
 }
 
 // NewProductView creates a new product view from event data
-func NewProductView(id string, version int, name string, description *string, price float32, quantity int, imageID *string, categoryID *string, enabled bool, createdAt, modifiedAt time.Time, attributes []ProductAttribute, attrs map[string]any) *ProductView {
+func NewProductView(id string, version int, name string, description *string, price float32, quantity int, imageID *string, categoryID *string, enabled bool, createdAt, modifiedAt time.Time, attributes []AttributeValue, attrs map[string]any) *ProductView {
 	return &ProductView{
 		ID:          id,
 		Version:     version,

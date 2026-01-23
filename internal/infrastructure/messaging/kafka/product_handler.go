@@ -25,8 +25,6 @@ func newProductHandler(repo productview.Repository) *productHandler {
 func (h *productHandler) Process(ctx context.Context, event any) error {
 	switch evt := event.(type) {
 	// Product events
-	case *catalog_events.ProductCreatedEvent:
-		return h.handleProductCreated(ctx, evt)
 	case *catalog_events.ProductUpdatedEvent:
 		return h.handleProductUpdated(ctx, evt)
 
@@ -39,37 +37,6 @@ func (h *productHandler) Process(ctx context.Context, event any) error {
 			zap.String("type", fmt.Sprintf("%T", event)))
 		return fmt.Errorf("unhandled event type: %T: %w", event, consumer.ErrSkipMessage)
 	}
-}
-
-func (h *productHandler) handleProductCreated(ctx context.Context, e *catalog_events.ProductCreatedEvent) error {
-	attributes, attrs := mapAttributes(e.Payload.Attributes)
-
-	view := productview.NewProductView(
-		e.Payload.ProductID,
-		e.Payload.Version,
-		e.Payload.Name,
-		e.Payload.Description,
-		e.Payload.Price,
-		e.Payload.Quantity,
-		e.Payload.ImageID,
-		e.Payload.CategoryID,
-		e.Payload.Enabled,
-		e.Payload.CreatedAt,
-		e.Payload.ModifiedAt,
-		attributes,
-		attrs,
-	)
-
-	if err := h.repo.Upsert(ctx, view); err != nil {
-		return fmt.Errorf("failed to upsert product view: %w", err)
-	}
-
-	h.log(ctx).Debug("product view created",
-		zap.String("productID", e.Payload.ProductID),
-		zap.String("eventID", e.Metadata.EventID),
-		zap.Int("version", e.Payload.Version))
-
-	return nil
 }
 
 func (h *productHandler) handleProductUpdated(ctx context.Context, e *catalog_events.ProductUpdatedEvent) error {

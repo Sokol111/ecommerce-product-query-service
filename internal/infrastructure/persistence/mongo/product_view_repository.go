@@ -41,7 +41,7 @@ func (r *productViewRepository) Upsert(ctx context.Context, product *productview
 		"version": bson.M{"$lt": entity.Version},
 	}
 
-	// Replace document, but preserve imageUrl if imageId hasn't changed.
+	// Replace document, but preserve image URLs if imageId hasn't changed.
 	// This prevents "flickering" when product is updated but image stays the same,
 	// since image-service only publishes ProductImagePromoted on promotion, not on every product update.
 	update := bson.A{
@@ -50,10 +50,17 @@ func (r *productViewRepository) Upsert(ctx context.Context, product *productview
 				"$mergeObjects": bson.A{
 					entity,
 					bson.M{
-						"imageUrl": bson.M{
+						"smallImageUrl": bson.M{
 							"$cond": bson.M{
 								"if":   bson.M{"$eq": bson.A{"$imageId", entity.ImageID}},
-								"then": "$imageUrl",
+								"then": "$smallImageUrl",
+								"else": nil,
+							},
+						},
+						"largeImageUrl": bson.M{
+							"$cond": bson.M{
+								"if":   bson.M{"$eq": bson.A{"$imageId", entity.ImageID}},
+								"then": "$largeImageUrl",
 								"else": nil,
 							},
 						},
@@ -76,7 +83,7 @@ func (r *productViewRepository) Upsert(ctx context.Context, product *productview
 	return nil
 }
 
-func (r *productViewRepository) UpdateImageURL(ctx context.Context, productID, imageID, imageURL string) error {
+func (r *productViewRepository) UpdateImageURLs(ctx context.Context, productID, imageID, smallImageURL, largeImageURL string) error {
 	// Only update if the document's imageId matches - prevents overwriting with stale data
 	// when product was already updated with a different image
 	filter := bson.D{
@@ -85,17 +92,18 @@ func (r *productViewRepository) UpdateImageURL(ctx context.Context, productID, i
 	}
 	update := bson.D{
 		{Key: "$set", Value: bson.D{
-			{Key: "imageUrl", Value: imageURL},
+			{Key: "smallImageUrl", Value: smallImageURL},
+			{Key: "largeImageUrl", Value: largeImageURL},
 		}},
 	}
 
 	result, err := r.collection.UpdateOne(ctx, filter, update)
 	if err != nil {
-		return fmt.Errorf("failed to update image URL: %w", err)
+		return fmt.Errorf("failed to update image URLs: %w", err)
 	}
 
 	if result.MatchedCount == 0 {
-		logger.Get(ctx).Debug("skipped image URL update - imageId mismatch or product not found",
+		logger.Get(ctx).Debug("skipped image URLs update - imageId mismatch or product not found",
 			zap.String("productId", productID),
 			zap.String("imageId", imageID))
 	}

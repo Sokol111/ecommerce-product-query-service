@@ -29,9 +29,9 @@ type Repository interface {
 	// Upsert inserts or updates a product view (for event processing)
 	Upsert(ctx context.Context, product *ProductView) error
 
-	// UpdateImageURL updates the image URL for a product (called when ImagePromoted event is received)
+	// UpdateImageURLs updates the image URLs for a product (called when ImagePromoted event is received)
 	// Returns nil if product doesn't exist yet (image event arrived before product event)
-	UpdateImageURL(ctx context.Context, productID, imageID, imageURL string) error
+	UpdateImageURLs(ctx context.Context, productID, imageID, smallImageURL, largeImageURL string) error
 
 	// FindByID retrieves a product view by ID
 	FindByID(ctx context.Context, id string) (*ProductView, error)

@@ -119,11 +119,11 @@ func mapAttributes(eventAttrs *[]catalog_events.AttributeValue) ([]productview.A
 }
 
 func (h *productHandler) handleProductImagePromoted(ctx context.Context, e *image_events.ProductImagePromotedEvent) error {
-	if err := h.repo.UpdateImageURL(ctx, e.Payload.ProductID, e.Payload.ImageID, e.Payload.ImageURL); err != nil {
-		return fmt.Errorf("failed to update product image URL: %w", err)
+	if err := h.repo.UpdateImageURLs(ctx, e.Payload.ProductID, e.Payload.ImageID, e.Payload.SmallImageURL, e.Payload.LargeImageURL); err != nil {
+		return fmt.Errorf("failed to update product image URLs: %w", err)
 	}
 
-	h.log(ctx).Debug("product image URL updated",
+	h.log(ctx).Debug("product image URLs updated",
 		zap.String("productID", e.Payload.ProductID),
 		zap.String("imageID", e.Payload.ImageID),
 		zap.String("eventID", e.Metadata.EventID))

@@ -18,58 +18,61 @@ type AttributeValue struct {
 // ProductView - read model for product queries (CQRS query side)
 // Unlike the domain Product in the command service, this is a denormalized view optimized for reads
 type ProductView struct {
-	ID          string
-	Version     int
-	Name        string
-	Description *string
-	Price       float32
-	Quantity    int
-	ImageID     *string
-	ImageURL    *string // Denormalized image URL for efficient reads
-	CategoryID  *string
-	Enabled     bool
-	CreatedAt   time.Time
-	ModifiedAt  time.Time
-	Attributes  []AttributeValue
-	Attrs       map[string]any // Denormalized attributes map for filtering (slug -> value)
+	ID            string
+	Version       int
+	Name          string
+	Description   *string
+	Price         float32
+	Quantity      int
+	ImageID       *string
+	SmallImageURL *string // Small image URL (400px) for thumbnails and listings
+	LargeImageURL *string // Large image URL (800px) for product detail pages
+	CategoryID    *string
+	Enabled       bool
+	CreatedAt     time.Time
+	ModifiedAt    time.Time
+	Attributes    []AttributeValue
+	Attrs         map[string]any // Denormalized attributes map for filtering (slug -> value)
 }
 
 // Reconstruct creates a ProductView from persistence data
-func Reconstruct(id string, version int, name string, description *string, price float32, quantity int, imageID *string, imageURL *string, categoryID *string, enabled bool, createdAt, modifiedAt time.Time, attributes []AttributeValue, attrs map[string]any) *ProductView {
+func Reconstruct(id string, version int, name string, description *string, price float32, quantity int, imageID *string, smallImageURL *string, largeImageURL *string, categoryID *string, enabled bool, createdAt, modifiedAt time.Time, attributes []AttributeValue, attrs map[string]any) *ProductView {
 	return &ProductView{
-		ID:          id,
-		Version:     version,
-		Name:        name,
-		Description: description,
-		Price:       price,
-		Quantity:    quantity,
-		ImageID:     imageID,
-		ImageURL:    imageURL,
-		CategoryID:  categoryID,
-		Enabled:     enabled,
-		CreatedAt:   createdAt,
-		ModifiedAt:  modifiedAt,
-		Attributes:  attributes,
-		Attrs:       attrs,
+		ID:            id,
+		Version:       version,
+		Name:          name,
+		Description:   description,
+		Price:         price,
+		Quantity:      quantity,
+		ImageID:       imageID,
+		SmallImageURL: smallImageURL,
+		LargeImageURL: largeImageURL,
+		CategoryID:    categoryID,
+		Enabled:       enabled,
+		CreatedAt:     createdAt,
+		ModifiedAt:    modifiedAt,
+		Attributes:    attributes,
+		Attrs:         attrs,
 	}
 }
 
 // NewProductView creates a new product view from event data
 func NewProductView(id string, version int, name string, description *string, price float32, quantity int, imageID *string, categoryID *string, enabled bool, createdAt, modifiedAt time.Time, attributes []AttributeValue, attrs map[string]any) *ProductView {
 	return &ProductView{
-		ID:          id,
-		Version:     version,
-		Name:        name,
-		Description: description,
-		Price:       price,
-		Quantity:    quantity,
-		ImageID:     imageID,
-		ImageURL:    nil, // Will be populated by ImagePromoted event
-		CategoryID:  categoryID,
-		Enabled:     enabled,
-		CreatedAt:   createdAt,
-		ModifiedAt:  modifiedAt,
-		Attributes:  attributes,
-		Attrs:       attrs,
+		ID:            id,
+		Version:       version,
+		Name:          name,
+		Description:   description,
+		Price:         price,
+		Quantity:      quantity,
+		ImageID:       imageID,
+		SmallImageURL: nil, // Will be populated by ImagePromoted event
+		LargeImageURL: nil, // Will be populated by ImagePromoted event
+		CategoryID:    categoryID,
+		Enabled:       enabled,
+		CreatedAt:     createdAt,
+		ModifiedAt:    modifiedAt,
+		Attributes:    attributes,
+		Attrs:         attrs,
 	}
 }

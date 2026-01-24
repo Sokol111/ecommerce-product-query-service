@@ -19,18 +19,19 @@ type productAttributeEntity struct {
 
 // productViewEntity represents the MongoDB document structure for product views
 type productViewEntity struct {
-	ID          string                   `bson:"_id"`
-	Version     int                      `bson:"version"`
-	Name        string                   `bson:"name"`
-	Description *string                  `bson:"description,omitempty"`
-	Price       float32                  `bson:"price"`
-	Quantity    int                      `bson:"quantity"`
-	ImageID     *string                  `bson:"imageId,omitempty"`
-	ImageURL    *string                  `bson:"imageUrl,omitempty"`
-	CategoryID  *string                  `bson:"categoryId,omitempty"`
-	Enabled     bool                     `bson:"enabled"`
-	CreatedAt   time.Time                `bson:"createdAt"`
-	ModifiedAt  time.Time                `bson:"modifiedAt"`
-	Attributes  []productAttributeEntity `bson:"attributes,omitempty"`
-	Attrs       map[string]any           `bson:"attrs,omitempty"` // Denormalized for filtering
+	ID            string                   `bson:"_id"`
+	Version       int                      `bson:"version"`
+	Name          string                   `bson:"name"`
+	Description   *string                  `bson:"description,omitempty"`
+	Price         float32                  `bson:"price"`
+	Quantity      int                      `bson:"quantity"`
+	ImageID       *string                  `bson:"imageId,omitempty"`
+	SmallImageURL *string                  `bson:"smallImageUrl,omitempty"`
+	LargeImageURL *string                  `bson:"largeImageUrl,omitempty"`
+	CategoryID    *string                  `bson:"categoryId,omitempty"`
+	Enabled       bool                     `bson:"enabled"`
+	CreatedAt     time.Time                `bson:"createdAt"`
+	ModifiedAt    time.Time                `bson:"modifiedAt"`
+	Attributes    []productAttributeEntity `bson:"attributes,omitempty"`
+	Attrs         map[string]any           `bson:"attrs,omitempty"` // Denormalized for filtering
 }

@@ -146,15 +146,16 @@ func (h *productHandler) toProductResponse(ctx context.Context, p *productview.P
 	}
 
 	return &httpapi.ProductResponse{
-		ID:          p.ID,
-		Name:        p.Name,
-		Description: toOptString(p.Description),
-		Price:       float64(p.Price),
-		Quantity:    p.Quantity,
-		ImageId:     toOptString(p.ImageID),
-		ImageUrl:    toOptString(p.ImageURL),
-		CategoryId:  toOptString(p.CategoryID),
-		Attributes:  attrs,
+		ID:            p.ID,
+		Name:          p.Name,
+		Description:   toOptString(p.Description),
+		Price:         float64(p.Price),
+		Quantity:      p.Quantity,
+		ImageId:       toOptString(p.ImageID),
+		SmallImageUrl: toOptString(p.SmallImageURL),
+		LargeImageUrl: toOptString(p.LargeImageURL),
+		CategoryId:    toOptString(p.CategoryID),
+		Attributes:    attrs,
 	}, nil
 }
 

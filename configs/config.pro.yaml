@@ -1,0 +1,48 @@
+# =============================================================================
+# Product Query Service - Production Configuration
+# =============================================================================
+# Values can be overridden by environment variables.
+# Viper automatically maps: mongo.host -> MONGO_HOST, kafka.brokers -> KAFKA_BROKERS, etc.
+
+logger:
+  level: info
+  development: false
+
+server:
+  port: 8080
+
+mongo:
+  host: mongo
+  port: 27017
+  username: admin
+  password: ""
+  database: product-query
+  replica-set: rs0
+  migrations:
+    enabled: true
+    auto-migrate: true
+
+observability:
+  otel-collector-endpoint: http://otel-collector:4317
+  tracing:
+    enabled: true
+  metrics:
+    enabled: true
+
+security:
+  token:
+    public-key: ""
+
+kafka:
+  brokers: kafka:29092
+  schema-registry:
+    url: http://schema-registry:8081
+    auto-register-schemas: true
+  consumers-config:
+    default-group-id: ecommerce-product-query-service
+    default-auto-offset-reset: earliest
+    consumers:
+      - name: product-events
+        topic: catalog.product.events
+      - name: attribute-events
+        topic: catalog.attribute.events

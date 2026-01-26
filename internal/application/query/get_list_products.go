@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/samber/lo"
+
 	"github.com/Sokol111/ecommerce-product-query-service/internal/domain/productview"
 )
 
@@ -46,20 +48,6 @@ func NewGetListProductsHandler(repo productview.Repository) GetListProductsQuery
 }
 
 func (h *getListProductsHandler) Handle(ctx context.Context, query GetListProductsQuery) (*ListProductsResult, error) {
-	// Map attribute filters from application to domain
-	var domainFilters []productview.AttributeFilter
-	if len(query.AttributeFilters) > 0 {
-		domainFilters = make([]productview.AttributeFilter, len(query.AttributeFilters))
-		for i, f := range query.AttributeFilters {
-			domainFilters[i] = productview.AttributeFilter{
-				Slug:   f.Slug,
-				Values: f.Values,
-				Min:    f.Min,
-				Max:    f.Max,
-			}
-		}
-	}
-
 	listQuery := productview.ListQuery{
 		Page:             query.Page,
 		Size:             query.Size,
@@ -68,7 +56,7 @@ func (h *getListProductsHandler) Handle(ctx context.Context, query GetListProduc
 		Order:            query.Order,
 		MinPrice:         query.MinPrice,
 		MaxPrice:         query.MaxPrice,
-		AttributeFilters: domainFilters,
+		AttributeFilters: lo.Map(query.AttributeFilters, mapAttributeFilter),
 	}
 
 	result, err := h.repo.FindList(ctx, listQuery)
@@ -82,4 +70,13 @@ func (h *getListProductsHandler) Handle(ctx context.Context, query GetListProduc
 		Size:  result.Size,
 		Total: result.Total,
 	}, nil
+}
+
+func mapAttributeFilter(f AttributeFilter, _ int) productview.AttributeFilter {
+	return productview.AttributeFilter{
+		Slug:   f.Slug,
+		Values: f.Values,
+		Min:    f.Min,
+		Max:    f.Max,
+	}
 }

@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/samber/lo"
+
 	"github.com/Sokol111/ecommerce-commons/pkg/core/logger"
 	commonsmongo "github.com/Sokol111/ecommerce-commons/pkg/persistence/mongo"
 	"github.com/Sokol111/ecommerce-product-query-service/internal/domain/productview"
@@ -128,12 +130,9 @@ func (r *productViewRepository) FindRandom(ctx context.Context, count int) ([]*p
 		return nil, fmt.Errorf("failed to decode products: %w", err)
 	}
 
-	views := make([]*productview.ProductView, 0, len(entities))
-	for i := range entities {
-		views = append(views, r.mapper.ToDomain(&entities[i]))
-	}
-
-	return views, nil
+	return lo.Map(entities, func(e productViewEntity, _ int) *productview.ProductView {
+		return r.mapper.ToDomain(&e)
+	}), nil
 }
 
 func (r *productViewRepository) FindList(ctx context.Context, query productview.ListQuery) (*commonsmongo.PageResult[productview.ProductView], error) {

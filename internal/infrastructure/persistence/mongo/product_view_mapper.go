@@ -1,6 +1,8 @@
 package mongo
 
 import (
+	"github.com/samber/lo"
+
 	commonsmongo "github.com/Sokol111/ecommerce-commons/pkg/persistence/mongo"
 	"github.com/Sokol111/ecommerce-product-query-service/internal/domain/productview"
 )
@@ -52,43 +54,35 @@ func (m *productViewMapper) ToDomain(entity *productViewEntity) *productview.Pro
 }
 
 func (m *productViewMapper) attributesToEntities(attrs []productview.AttributeValue) []productAttributeEntity {
-	if len(attrs) == 0 {
-		return nil
-	}
+	return lo.Map(attrs, mapAttributeToEntity)
+}
 
-	entities := make([]productAttributeEntity, len(attrs))
-	for i, attr := range attrs {
-		entities[i] = productAttributeEntity{
-			AttributeID:      attr.AttributeID,
-			Slug:             attr.Slug,
-			OptionSlugValue:  attr.OptionSlugValue,
-			OptionSlugValues: attr.OptionSlugValues,
-			NumericValue:     attr.NumericValue,
-			TextValue:        attr.TextValue,
-			BooleanValue:     attr.BooleanValue,
-		}
+func mapAttributeToEntity(attr productview.AttributeValue, _ int) productAttributeEntity {
+	return productAttributeEntity{
+		AttributeID:      attr.AttributeID,
+		Slug:             attr.Slug,
+		OptionSlugValue:  attr.OptionSlugValue,
+		OptionSlugValues: attr.OptionSlugValues,
+		NumericValue:     attr.NumericValue,
+		TextValue:        attr.TextValue,
+		BooleanValue:     attr.BooleanValue,
 	}
-	return entities
 }
 
 func (m *productViewMapper) attributesToDomain(entities []productAttributeEntity) []productview.AttributeValue {
-	if len(entities) == 0 {
-		return nil
-	}
+	return lo.Map(entities, mapAttributeToDomain)
+}
 
-	attrs := make([]productview.AttributeValue, len(entities))
-	for i, attr := range entities {
-		attrs[i] = productview.AttributeValue{
-			AttributeID:      attr.AttributeID,
-			Slug:             attr.Slug,
-			OptionSlugValue:  attr.OptionSlugValue,
-			OptionSlugValues: attr.OptionSlugValues,
-			NumericValue:     attr.NumericValue,
-			TextValue:        attr.TextValue,
-			BooleanValue:     attr.BooleanValue,
-		}
+func mapAttributeToDomain(attr productAttributeEntity, _ int) productview.AttributeValue {
+	return productview.AttributeValue{
+		AttributeID:      attr.AttributeID,
+		Slug:             attr.Slug,
+		OptionSlugValue:  attr.OptionSlugValue,
+		OptionSlugValues: attr.OptionSlugValues,
+		NumericValue:     attr.NumericValue,
+		TextValue:        attr.TextValue,
+		BooleanValue:     attr.BooleanValue,
 	}
-	return attrs
 }
 
 func (m *productViewMapper) GetID(entity *productViewEntity) string {

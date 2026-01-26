@@ -54,97 +54,87 @@ func formatBool(b bool) string {
 	return strconv.FormatBool(b)
 }
 
-// toAttributeValues joins product attributes with master data and maps to HTTP response
-func (h *productHandler) toAttributeValues(ctx context.Context, attrs []productview.AttributeValue) ([]httpapi.AttributeValue, error) {
-	if len(attrs) == 0 {
-		return nil, nil
+// mapAttributeValue converts a single product attribute to HTTP response using pre-fetched master data
+func mapAttributeValue(attr productview.AttributeValue, index int, attrByID map[string]*attributeview.AttributeView) (httpapi.AttributeValue, bool) {
+	master, ok := attrByID[attr.AttributeID]
+	// Skip if master data not found or attribute is disabled
+	if !ok || !master.Enabled {
+		return httpapi.AttributeValue{}, false
 	}
 
-	attrIDs := lo.Uniq(lo.Map(attrs, func(attr productview.AttributeValue, _ int) string {
-		return attr.AttributeID
-	}))
+	optionsBySlug := lo.KeyBy(master.Options, func(opt attributeview.AttributeOption) string { return opt.Slug })
 
-	masterAttrs, err := h.attributeRepo.FindByIDs(ctx, attrIDs)
-	if err != nil {
-		return nil, err
-	}
+	// Build unified values array based on attribute type
+	var values []httpapi.AttributeValueItem
 
-	attrByID := lo.KeyBy(masterAttrs, func(attr *attributeview.AttributeView) string { return attr.ID })
-
-	return lo.FilterMap(attrs, func(attr productview.AttributeValue, i int) (httpapi.AttributeValue, bool) {
-		master, ok := attrByID[attr.AttributeID]
-		// Skip if master data not found or attribute is disabled
-		if !ok || !master.Enabled {
-			return httpapi.AttributeValue{}, false
-		}
-
-		optionsBySlug := lo.KeyBy(master.Options, func(opt attributeview.AttributeOption) string { return opt.Slug })
-
-		// Build unified values array based on attribute type
-		var values []httpapi.AttributeValueItem
-
-		switch master.Type {
-		case "single":
-			if attr.OptionSlugValue != nil {
-				if opt, ok := optionsBySlug[*attr.OptionSlugValue]; ok {
-					values = []httpapi.AttributeValueItem{{
-						Slug:      toOptString(attr.OptionSlugValue),
-						Value:     opt.Name,
-						ColorCode: toOptString(opt.ColorCode),
-					}}
-				}
-			}
-		case "multiple":
-			values = lo.FilterMap(attr.OptionSlugValues, func(slug string, _ int) (httpapi.AttributeValueItem, bool) {
-				opt, ok := optionsBySlug[slug]
-				if !ok {
-					return httpapi.AttributeValueItem{}, false
-				}
-				return httpapi.AttributeValueItem{
-					Slug:      httpapi.NewOptString(slug),
+	switch master.Type {
+	case "single":
+		if attr.OptionSlugValue != nil {
+			if opt, ok := optionsBySlug[*attr.OptionSlugValue]; ok {
+				values = []httpapi.AttributeValueItem{{
+					Slug:      toOptString(attr.OptionSlugValue),
 					Value:     opt.Name,
 					ColorCode: toOptString(opt.ColorCode),
-				}, true
-			})
-		case "range":
-			if attr.NumericValue != nil {
-				values = []httpapi.AttributeValueItem{{
-					Value: formatFloat(*attr.NumericValue),
-				}}
-			}
-		case "boolean":
-			if attr.BooleanValue != nil {
-				values = []httpapi.AttributeValueItem{{
-					Value: formatBool(*attr.BooleanValue),
-				}}
-			}
-		case "text":
-			if attr.TextValue != nil {
-				values = []httpapi.AttributeValueItem{{
-					Value: *attr.TextValue,
 				}}
 			}
 		}
-
-		return httpapi.AttributeValue{
-			AttributeId: attr.AttributeID,
-			Slug:        attr.Slug,
-			Name:        master.Name,
-			Type:        httpapi.AttributeValueType(master.Type),
-			Unit:        toOptString(master.Unit),
-			Role:        httpapi.AttributeValueRole("specification"),
-			SortOrder:   i,
-			Values:      values,
-		}, true
-	}), nil
-}
-
-func (h *productHandler) toProductResponse(ctx context.Context, p *productview.ProductView) (*httpapi.ProductResponse, error) {
-	attrs, err := h.toAttributeValues(ctx, p.Attributes)
-	if err != nil {
-		return nil, err
+	case "multiple":
+		values = lo.FilterMap(attr.OptionSlugValues, func(slug string, _ int) (httpapi.AttributeValueItem, bool) {
+			opt, ok := optionsBySlug[slug]
+			if !ok {
+				return httpapi.AttributeValueItem{}, false
+			}
+			return httpapi.AttributeValueItem{
+				Slug:      httpapi.NewOptString(slug),
+				Value:     opt.Name,
+				ColorCode: toOptString(opt.ColorCode),
+			}, true
+		})
+	case "range":
+		if attr.NumericValue != nil {
+			values = []httpapi.AttributeValueItem{{
+				Value: formatFloat(*attr.NumericValue),
+			}}
+		}
+	case "boolean":
+		if attr.BooleanValue != nil {
+			values = []httpapi.AttributeValueItem{{
+				Value: formatBool(*attr.BooleanValue),
+			}}
+		}
+	case "text":
+		if attr.TextValue != nil {
+			values = []httpapi.AttributeValueItem{{
+				Value: *attr.TextValue,
+			}}
+		}
 	}
 
+	return httpapi.AttributeValue{
+		AttributeId: attr.AttributeID,
+		Slug:        attr.Slug,
+		Name:        master.Name,
+		Type:        httpapi.AttributeValueType(master.Type),
+		Unit:        toOptString(master.Unit),
+		Role:        httpapi.AttributeValueRole("specification"),
+		SortOrder:   index,
+		Values:      values,
+	}, true
+}
+
+// toAttributeValuesWithMasterData maps product attributes using pre-fetched master data (no DB call)
+func toAttributeValuesWithMasterData(attrs []productview.AttributeValue, attrByID map[string]*attributeview.AttributeView) []httpapi.AttributeValue {
+	if len(attrs) == 0 {
+		return nil
+	}
+
+	return lo.FilterMap(attrs, func(attr productview.AttributeValue, i int) (httpapi.AttributeValue, bool) {
+		return mapAttributeValue(attr, i, attrByID)
+	})
+}
+
+// toProductResponseWithMasterData converts a product to HTTP response using pre-fetched master data (no DB call)
+func toProductResponseWithMasterData(p *productview.ProductView, attrByID map[string]*attributeview.AttributeView) *httpapi.ProductResponse {
 	return &httpapi.ProductResponse{
 		ID:            p.ID,
 		Name:          p.Name,
@@ -155,8 +145,58 @@ func (h *productHandler) toProductResponse(ctx context.Context, p *productview.P
 		SmallImageUrl: toOptString(p.SmallImageURL),
 		LargeImageUrl: toOptString(p.LargeImageURL),
 		CategoryId:    toOptString(p.CategoryID),
-		Attributes:    attrs,
-	}, nil
+		Attributes:    toAttributeValuesWithMasterData(p.Attributes, attrByID),
+	}
+}
+
+// fetchMasterAttributes fetches all unique attributes for a list of products in a single query
+func (h *productHandler) fetchMasterAttributes(ctx context.Context, products []*productview.ProductView) (map[string]*attributeview.AttributeView, error) {
+	// Collect all unique attribute IDs from all products
+	attrIDs := lo.Uniq(lo.FlatMap(products, func(p *productview.ProductView, _ int) []string {
+		return lo.Map(p.Attributes, func(attr productview.AttributeValue, _ int) string {
+			return attr.AttributeID
+		})
+	}))
+
+	if len(attrIDs) == 0 {
+		return nil, nil
+	}
+
+	// Single DB query for all attributes
+	masterAttrs, err := h.attributeRepo.FindByIDs(ctx, attrIDs)
+	if err != nil {
+		return nil, err
+	}
+
+	return lo.KeyBy(masterAttrs, func(attr *attributeview.AttributeView) string { return attr.ID }), nil
+}
+
+// toProductListResponse converts a list of products to HTTP responses with a single DB query for attributes
+func (h *productHandler) toProductListResponse(ctx context.Context, products []*productview.ProductView) ([]httpapi.ProductResponse, error) {
+	if len(products) == 0 {
+		return nil, nil
+	}
+
+	// Fetch all master attributes in one query
+	attrByID, err := h.fetchMasterAttributes(ctx, products)
+	if err != nil {
+		return nil, err
+	}
+
+	// Map all products using pre-fetched data
+	return lo.Map(products, func(p *productview.ProductView, _ int) httpapi.ProductResponse {
+		return *toProductResponseWithMasterData(p, attrByID)
+	}), nil
+}
+
+// toProductResponse converts a single product to HTTP response (makes DB call for attributes)
+func (h *productHandler) toProductResponse(ctx context.Context, p *productview.ProductView) (*httpapi.ProductResponse, error) {
+	attrByID, err := h.fetchMasterAttributes(ctx, []*productview.ProductView{p})
+	if err != nil {
+		return nil, err
+	}
+
+	return toProductResponseWithMasterData(p, attrByID), nil
 }
 
 func (h *productHandler) GetProductById(ctx context.Context, params httpapi.GetProductByIdParams) (httpapi.GetProductByIdRes, error) {
@@ -190,13 +230,10 @@ func (h *productHandler) GetRandomProducts(ctx context.Context, params httpapi.G
 		return nil, err
 	}
 
-	response := make([]httpapi.ProductResponse, len(products))
-	for i, p := range products {
-		resp, err := h.toProductResponse(ctx, p)
-		if err != nil {
-			return nil, err
-		}
-		response[i] = *resp
+	// Single DB query for all attributes
+	response, err := h.toProductListResponse(ctx, products)
+	if err != nil {
+		return nil, err
 	}
 
 	return (*httpapi.GetRandomProductsOKApplicationJSON)(&response), nil
@@ -246,13 +283,10 @@ func (h *productHandler) GetProductList(ctx context.Context, params httpapi.GetP
 		return nil, err
 	}
 
-	items := make([]httpapi.ProductResponse, len(result.Items))
-	for i, p := range result.Items {
-		resp, err := h.toProductResponse(ctx, p)
-		if err != nil {
-			return nil, err
-		}
-		items[i] = *resp
+	// Single DB query for all attributes
+	items, err := h.toProductListResponse(ctx, result.Items)
+	if err != nil {
+		return nil, err
 	}
 
 	return &httpapi.ProductListResponse{

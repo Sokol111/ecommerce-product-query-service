@@ -12,22 +12,6 @@ func newProductViewMapper() *productViewMapper {
 }
 
 func (m *productViewMapper) ToEntity(domain *productview.ProductView) *productViewEntity {
-	var attributes []productAttributeEntity
-	if len(domain.Attributes) > 0 {
-		attributes = make([]productAttributeEntity, len(domain.Attributes))
-		for i, attr := range domain.Attributes {
-			attributes[i] = productAttributeEntity{
-				AttributeID:      attr.AttributeID,
-				Slug:             attr.Slug,
-				OptionSlugValue:  attr.OptionSlugValue,
-				OptionSlugValues: attr.OptionSlugValues,
-				NumericValue:     attr.NumericValue,
-				TextValue:        attr.TextValue,
-				BooleanValue:     attr.BooleanValue,
-			}
-		}
-	}
-
 	return &productViewEntity{
 		ID:            domain.ID,
 		Version:       domain.Version,
@@ -42,28 +26,12 @@ func (m *productViewMapper) ToEntity(domain *productview.ProductView) *productVi
 		Enabled:       domain.Enabled,
 		CreatedAt:     domain.CreatedAt,
 		ModifiedAt:    domain.ModifiedAt,
-		Attributes:    attributes,
+		Attributes:    m.attributesToEntities(domain.Attributes),
 		Attrs:         domain.Attrs,
 	}
 }
 
 func (m *productViewMapper) ToDomain(entity *productViewEntity) *productview.ProductView {
-	var attributes []productview.AttributeValue
-	if len(entity.Attributes) > 0 {
-		attributes = make([]productview.AttributeValue, len(entity.Attributes))
-		for i, attr := range entity.Attributes {
-			attributes[i] = productview.AttributeValue{
-				AttributeID:      attr.AttributeID,
-				Slug:             attr.Slug,
-				OptionSlugValue:  attr.OptionSlugValue,
-				OptionSlugValues: attr.OptionSlugValues,
-				NumericValue:     attr.NumericValue,
-				TextValue:        attr.TextValue,
-				BooleanValue:     attr.BooleanValue,
-			}
-		}
-	}
-
 	return productview.Reconstruct(
 		entity.ID,
 		entity.Version,
@@ -78,9 +46,49 @@ func (m *productViewMapper) ToDomain(entity *productViewEntity) *productview.Pro
 		entity.Enabled,
 		entity.CreatedAt,
 		entity.ModifiedAt,
-		attributes,
+		m.attributesToDomain(entity.Attributes),
 		entity.Attrs,
 	)
+}
+
+func (m *productViewMapper) attributesToEntities(attrs []productview.AttributeValue) []productAttributeEntity {
+	if len(attrs) == 0 {
+		return nil
+	}
+
+	entities := make([]productAttributeEntity, len(attrs))
+	for i, attr := range attrs {
+		entities[i] = productAttributeEntity{
+			AttributeID:      attr.AttributeID,
+			Slug:             attr.Slug,
+			OptionSlugValue:  attr.OptionSlugValue,
+			OptionSlugValues: attr.OptionSlugValues,
+			NumericValue:     attr.NumericValue,
+			TextValue:        attr.TextValue,
+			BooleanValue:     attr.BooleanValue,
+		}
+	}
+	return entities
+}
+
+func (m *productViewMapper) attributesToDomain(entities []productAttributeEntity) []productview.AttributeValue {
+	if len(entities) == 0 {
+		return nil
+	}
+
+	attrs := make([]productview.AttributeValue, len(entities))
+	for i, attr := range entities {
+		attrs[i] = productview.AttributeValue{
+			AttributeID:      attr.AttributeID,
+			Slug:             attr.Slug,
+			OptionSlugValue:  attr.OptionSlugValue,
+			OptionSlugValues: attr.OptionSlugValues,
+			NumericValue:     attr.NumericValue,
+			TextValue:        attr.TextValue,
+			BooleanValue:     attr.BooleanValue,
+		}
+	}
+	return attrs
 }
 
 func (m *productViewMapper) GetID(entity *productViewEntity) string {

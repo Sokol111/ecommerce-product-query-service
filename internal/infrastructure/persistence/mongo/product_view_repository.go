@@ -137,44 +137,7 @@ func (r *productViewRepository) FindRandom(ctx context.Context, count int) ([]*p
 }
 
 func (r *productViewRepository) FindList(ctx context.Context, query productview.ListQuery) (*commonsmongo.PageResult[productview.ProductView], error) {
-	filter := bson.D{{Key: "enabled", Value: true}}
-
-	if query.CategoryID != nil {
-		filter = append(filter, bson.E{Key: "categoryId", Value: *query.CategoryID})
-	}
-
-	// Price filters
-	if query.MinPrice != nil || query.MaxPrice != nil {
-		priceFilter := bson.M{}
-		if query.MinPrice != nil {
-			priceFilter["$gte"] = *query.MinPrice
-		}
-		if query.MaxPrice != nil {
-			priceFilter["$lte"] = *query.MaxPrice
-		}
-		filter = append(filter, bson.E{Key: "price", Value: priceFilter})
-	}
-
-	// Attribute filters (using denormalized attrs field)
-	for _, attrFilter := range query.AttributeFilters {
-		attrKey := "attrs." + attrFilter.Slug
-
-		if len(attrFilter.Values) > 0 {
-			// For single/multiple type: match any of the values
-			// Works for both single value (string) and array of values
-			filter = append(filter, bson.E{Key: attrKey, Value: bson.M{"$in": attrFilter.Values}})
-		} else if attrFilter.Min != nil || attrFilter.Max != nil {
-			// For range type: numeric comparison
-			rangeFilter := bson.M{}
-			if attrFilter.Min != nil {
-				rangeFilter["$gte"] = *attrFilter.Min
-			}
-			if attrFilter.Max != nil {
-				rangeFilter["$lte"] = *attrFilter.Max
-			}
-			filter = append(filter, bson.E{Key: attrKey, Value: rangeFilter})
-		}
-	}
+	filter := r.buildListFilter(query)
 
 	var sortBson bson.D
 	if query.Sort != "" {
@@ -193,4 +156,54 @@ func (r *productViewRepository) FindList(ctx context.Context, query productview.
 	}
 
 	return r.FindWithOptions(ctx, opts)
+}
+
+func (r *productViewRepository) buildListFilter(query productview.ListQuery) bson.D {
+	filter := bson.D{{Key: "enabled", Value: true}}
+
+	if query.CategoryID != nil {
+		filter = append(filter, bson.E{Key: "categoryId", Value: *query.CategoryID})
+	}
+
+	filter = r.appendPriceFilter(filter, query.MinPrice, query.MaxPrice)
+	filter = r.appendAttributeFilters(filter, query.AttributeFilters)
+
+	return filter
+}
+
+func (r *productViewRepository) appendPriceFilter(filter bson.D, minPrice, maxPrice *float64) bson.D {
+	if minPrice == nil && maxPrice == nil {
+		return filter
+	}
+
+	priceFilter := bson.M{}
+	if minPrice != nil {
+		priceFilter["$gte"] = *minPrice
+	}
+	if maxPrice != nil {
+		priceFilter["$lte"] = *maxPrice
+	}
+	return append(filter, bson.E{Key: "price", Value: priceFilter})
+}
+
+func (r *productViewRepository) appendAttributeFilters(filter bson.D, attrFilters []productview.AttributeFilter) bson.D {
+	for _, attrFilter := range attrFilters {
+		attrKey := "attrs." + attrFilter.Slug
+
+		if len(attrFilter.Values) > 0 {
+			// For single/multiple type: match any of the values
+			filter = append(filter, bson.E{Key: attrKey, Value: bson.M{"$in": attrFilter.Values}})
+		} else if attrFilter.Min != nil || attrFilter.Max != nil {
+			// For range type: numeric comparison
+			rangeFilter := bson.M{}
+			if attrFilter.Min != nil {
+				rangeFilter["$gte"] = *attrFilter.Min
+			}
+			if attrFilter.Max != nil {
+				rangeFilter["$lte"] = *attrFilter.Max
+			}
+			filter = append(filter, bson.E{Key: attrKey, Value: rangeFilter})
+		}
+	}
+	return filter
 }

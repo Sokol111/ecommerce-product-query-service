@@ -6,26 +6,23 @@ import (
 	"github.com/Sokol111/ecommerce-commons/pkg/core/logger"
 	commonsmongo "github.com/Sokol111/ecommerce-commons/pkg/persistence/mongo"
 	"github.com/Sokol111/ecommerce-product-query-service/internal/domain/attributeview"
-	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.uber.org/zap"
 )
 
 type attributeViewRepository struct {
 	*commonsmongo.GenericRepository[attributeview.AttributeView, attributeViewEntity]
-	collection commonsmongo.Collection
-	mapper     *attributeViewMapper
+	mapper *attributeViewMapper
 }
 
 func newAttributeViewRepository(mongo commonsmongo.Mongo, mapper *attributeViewMapper) (attributeview.Repository, error) {
-	collection := mongo.GetCollection("attribute_view")
-	genericRepo, err := commonsmongo.NewGenericRepository(collection, mapper)
+	genericRepo, err := commonsmongo.NewGenericRepository(mongo.GetCollection("attribute_view"), mapper)
 	if err != nil {
 		return nil, err
 	}
 
 	return &attributeViewRepository{
 		GenericRepository: genericRepo,
-		collection:        collection,
 		mapper:            mapper,
 	}, nil
 }

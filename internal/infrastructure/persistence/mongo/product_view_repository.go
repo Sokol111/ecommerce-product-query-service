@@ -9,15 +9,15 @@ import (
 	"github.com/Sokol111/ecommerce-commons/pkg/core/logger"
 	commonsmongo "github.com/Sokol111/ecommerce-commons/pkg/persistence/mongo"
 	"github.com/Sokol111/ecommerce-product-query-service/internal/domain/productview"
-	"go.mongodb.org/mongo-driver/bson"
-	mongodriver "go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/v2/bson"
+	mongodriver "go.mongodb.org/mongo-driver/v2/mongo"
+	"go.mongodb.org/mongo-driver/v2/mongo/options"
 	"go.uber.org/zap"
 )
 
 type productViewRepository struct {
 	*commonsmongo.GenericRepository[productview.ProductView, productViewEntity]
-	collection commonsmongo.Collection
+	collection *mongodriver.Collection
 	mapper     *productViewMapper
 }
 
@@ -72,7 +72,7 @@ func (r *productViewRepository) Upsert(ctx context.Context, product *productview
 		},
 	}
 
-	opts := options.Update().SetUpsert(true)
+	opts := options.UpdateOne().SetUpsert(true)
 	result, err := r.collection.UpdateOne(ctx, filter, update, opts)
 	if err != nil {
 		return fmt.Errorf("failed to upsert product view: %w", err)

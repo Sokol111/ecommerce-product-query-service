@@ -9,7 +9,7 @@ import (
 
 	"github.com/samber/lo"
 
-	"github.com/Sokol111/ecommerce-commons/pkg/persistence"
+	"github.com/Sokol111/ecommerce-commons/pkg/persistence/mongo"
 	"github.com/Sokol111/ecommerce-product-query-service-api/gen/httpapi"
 	"github.com/Sokol111/ecommerce-product-query-service/internal/application/query"
 	"github.com/Sokol111/ecommerce-product-query-service/internal/domain/attributeview"
@@ -203,7 +203,7 @@ func (h *productHandler) GetProductById(ctx context.Context, params httpapi.GetP
 	q := query.GetProductByIDQuery{ID: params.ID}
 
 	found, err := h.getByIDHandler.Handle(ctx, q)
-	if errors.Is(err, persistence.ErrEntityNotFound) {
+	if errors.Is(err, mongo.ErrEntityNotFound) {
 		return &httpapi.GetProductByIdNotFound{
 			Status: 404,
 			Type:   *aboutBlankURL,

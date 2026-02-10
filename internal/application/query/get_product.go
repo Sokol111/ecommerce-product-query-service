@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/Sokol111/ecommerce-commons/pkg/persistence"
+	"github.com/Sokol111/ecommerce-commons/pkg/persistence/mongo"
 	"github.com/Sokol111/ecommerce-product-query-service/internal/domain/productview"
 )
 
@@ -28,8 +28,8 @@ func NewGetProductByIDHandler(repo productview.Repository) GetProductByIDQueryHa
 func (h *getProductByIDHandler) Handle(ctx context.Context, query GetProductByIDQuery) (*productview.ProductView, error) {
 	p, err := h.repo.FindByID(ctx, query.ID)
 	if err != nil {
-		if errors.Is(err, persistence.ErrEntityNotFound) {
-			return nil, persistence.ErrEntityNotFound
+		if errors.Is(err, mongo.ErrEntityNotFound) {
+			return nil, mongo.ErrEntityNotFound
 		}
 		return nil, fmt.Errorf("failed to get product view: %w", err)
 	}

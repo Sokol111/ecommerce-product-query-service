@@ -123,7 +123,7 @@ func (r *productViewRepository) FindRandom(ctx context.Context, count int) ([]*p
 	if err != nil {
 		return nil, fmt.Errorf("failed to aggregate random products: %w", err)
 	}
-	defer cursor.Close(ctx)
+	defer func() { _ = cursor.Close(ctx) }() //nolint:errcheck // cursor.Close error is not actionable
 
 	var entities []productViewEntity
 	if err = cursor.All(ctx, &entities); err != nil {

@@ -1,9 +1,10 @@
-package http
+package http //nolint:revive // intentional package name to group HTTP handlers
 
 import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/url"
 	"strconv"
 
@@ -23,6 +24,16 @@ type productHandler struct {
 	attributeRepo    attributeview.Repository
 }
 
+var aboutBlankURL *url.URL
+
+func init() {
+	var err error
+	aboutBlankURL, err = url.Parse("about:blank")
+	if err != nil {
+		panic(fmt.Sprintf("failed to parse about:blank URL: %v", err))
+	}
+}
+
 func newProductHandler(
 	getByIDHandler query.GetProductByIDQueryHandler,
 	getRandomHandler query.GetRandomProductsQueryHandler,
@@ -36,8 +47,6 @@ func newProductHandler(
 		attributeRepo:    attributeRepo,
 	}
 }
-
-var aboutBlankURL, _ = url.Parse("about:blank")
 
 func toOptString(s *string) httpapi.OptString {
 	if s == nil {
@@ -159,7 +168,7 @@ func (h *productHandler) fetchMasterAttributes(ctx context.Context, products []*
 	}))
 
 	if len(attrIDs) == 0 {
-		return nil, nil
+		return make(map[string]*attributeview.AttributeView), nil
 	}
 
 	// Single DB query for all attributes
@@ -199,7 +208,7 @@ func (h *productHandler) toProductResponse(ctx context.Context, p *productview.P
 	return toProductResponseWithMasterData(p, attrByID), nil
 }
 
-func (h *productHandler) GetProductById(ctx context.Context, params httpapi.GetProductByIdParams) (httpapi.GetProductByIdRes, error) {
+func (h *productHandler) GetProductById(ctx context.Context, params httpapi.GetProductByIdParams) (httpapi.GetProductByIdRes, error) { //nolint:revive // method name defined by ogen-generated interface
 	q := query.GetProductByIDQuery{ID: params.ID}
 
 	found, err := h.getByIDHandler.Handle(ctx, q)
@@ -258,6 +267,7 @@ func (h *productHandler) GetProductList(ctx context.Context, params httpapi.GetP
 	var attributeFilters []query.AttributeFilter
 	if params.AttributeFilters.IsSet() && params.AttributeFilters.Value != "" {
 		if err := json.Unmarshal([]byte(params.AttributeFilters.Value), &attributeFilters); err != nil {
+			//nolint:nilerr // returning HTTP 400 response instead of error
 			return &httpapi.GetProductListBadRequest{
 				Status: 400,
 				Type:   *aboutBlankURL,

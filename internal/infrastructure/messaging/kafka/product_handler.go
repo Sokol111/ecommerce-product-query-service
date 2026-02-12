@@ -82,7 +82,7 @@ func (h *productHandler) handleProductUpdated(ctx context.Context, e *catalog_ev
 
 func (h *productHandler) fetchAttributeSlugs(ctx context.Context, eventAttrs *[]catalog_events.AttributeValue) (map[string]string, error) {
 	if eventAttrs == nil || len(*eventAttrs) == 0 {
-		return nil, nil
+		return make(map[string]string), nil
 	}
 
 	attrIDs := lo.Map(*eventAttrs, func(attr catalog_events.AttributeValue, _ int) string {

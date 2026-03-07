@@ -206,3 +206,139 @@ func (r *productViewRepository) appendAttributeFilters(filter bson.D, attrFilter
 	}
 	return filter
 }
+
+func (r *productViewRepository) FindFacets(ctx context.Context, categoryID string) (*productview.FacetsResult, error) {
+	// Match only enabled products in the given category that have attrs
+	matchStage := bson.D{
+		{Key: "$match", Value: bson.D{
+			{Key: "enabled", Value: true},
+			{Key: "categoryId", Value: categoryID},
+			{Key: "attrs", Value: bson.M{"$exists": true, "$ne": bson.M{}}},
+		}},
+	}
+
+	// Use $facet to compute attribute facets and price range in a single aggregation
+	facetStage := bson.D{
+		{Key: "$facet", Value: bson.D{
+			{Key: "attrFacets", Value: bson.A{
+				// Convert attrs map to array of {k, v} pairs
+				bson.D{{Key: "$project", Value: bson.D{
+					{Key: "attrsArray", Value: bson.M{"$objectToArray": "$attrs"}},
+				}}},
+				// Unwind to get one doc per attribute
+				bson.D{{Key: "$unwind", Value: "$attrsArray"}},
+				// Unwind arrays (for multiple type) — leaves scalars intact
+				bson.D{{Key: "$unwind", Value: bson.D{
+					{Key: "path", Value: "$attrsArray.v"},
+					{Key: "preserveNullAndEmptyArrays", Value: false},
+				}}},
+				// Group by attribute slug + value, count products
+				bson.D{{Key: "$group", Value: bson.D{
+					{Key: "_id", Value: bson.D{
+						{Key: "slug", Value: "$attrsArray.k"},
+						{Key: "value", Value: "$attrsArray.v"},
+					}},
+					{Key: "count", Value: bson.M{"$sum": 1}},
+				}}},
+				// Sort by slug then count (descending)
+				bson.D{{Key: "$sort", Value: bson.D{
+					{Key: "_id.slug", Value: 1},
+					{Key: "count", Value: -1},
+				}}},
+				// Group by attribute slug to collect all values
+				bson.D{{Key: "$group", Value: bson.D{
+					{Key: "_id", Value: "$_id.slug"},
+					{Key: "values", Value: bson.M{"$push": bson.D{
+						{Key: "value", Value: "$_id.value"},
+						{Key: "count", Value: "$count"},
+					}}},
+				}}},
+				// Sort by slug for consistent ordering
+				bson.D{{Key: "$sort", Value: bson.D{
+					{Key: "_id", Value: 1},
+				}}},
+			}},
+			{Key: "priceRange", Value: bson.A{
+				bson.D{{Key: "$group", Value: bson.D{
+					{Key: "_id", Value: nil},
+					{Key: "min", Value: bson.M{"$min": "$price"}},
+					{Key: "max", Value: bson.M{"$max": "$price"}},
+				}}},
+			}},
+		}},
+	}
+
+	pipeline := mongodriver.Pipeline{matchStage, facetStage}
+
+	cursor, err := r.collection.Aggregate(ctx, pipeline)
+	if err != nil {
+		return nil, fmt.Errorf("failed to aggregate facets: %w", err)
+	}
+	defer func() { _ = cursor.Close(ctx) }()
+
+	var results []facetsAggregationResult
+	if err = cursor.All(ctx, &results); err != nil {
+		return nil, fmt.Errorf("failed to decode facets: %w", err)
+	}
+
+	if len(results) == 0 {
+		return &productview.FacetsResult{}, nil
+	}
+
+	return mapFacetsResult(&results[0]), nil
+}
+
+// facetsAggregationResult represents the MongoDB $facet output structure
+type facetsAggregationResult struct {
+	AttrFacets []attrFacetResult `bson:"attrFacets"`
+	PriceRange []priceResult     `bson:"priceRange"`
+}
+
+type attrFacetResult struct {
+	Slug   string             `bson:"_id"`
+	Values []facetValueResult `bson:"values"`
+}
+
+type facetValueResult struct {
+	Value any `bson:"value"`
+	Count int `bson:"count"`
+}
+
+type priceResult struct {
+	Min float64 `bson:"min"`
+	Max float64 `bson:"max"`
+}
+
+func mapFacetsResult(result *facetsAggregationResult) *productview.FacetsResult {
+	facets := make([]productview.AttributeFacet, len(result.AttrFacets))
+	for i, af := range result.AttrFacets {
+		values := make([]productview.FacetValue, len(af.Values))
+		for j, v := range af.Values {
+			values[j] = productview.FacetValue{
+				Value: fmt.Sprintf("%v", v.Value),
+				Count: v.Count,
+			}
+			// For string values (single/multiple type), use value as slug
+			if strVal, ok := v.Value.(string); ok {
+				values[j].Slug = strVal
+			}
+		}
+		facets[i] = productview.AttributeFacet{
+			Slug:   af.Slug,
+			Values: values,
+		}
+	}
+
+	var priceRange productview.PriceRange
+	if len(result.PriceRange) > 0 {
+		priceRange = productview.PriceRange{
+			Min: result.PriceRange[0].Min,
+			Max: result.PriceRange[0].Max,
+		}
+	}
+
+	return &productview.FacetsResult{
+		Facets:     facets,
+		PriceRange: priceRange,
+	}
+}

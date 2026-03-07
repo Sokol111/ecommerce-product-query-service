@@ -21,6 +21,7 @@ type productHandler struct {
 	getByIDHandler   query.GetProductByIDQueryHandler
 	getRandomHandler query.GetRandomProductsQueryHandler
 	getListHandler   query.GetListProductsQueryHandler
+	getFacetsHandler query.GetProductFacetsQueryHandler
 	attributeRepo    attributeview.Repository
 }
 
@@ -38,12 +39,14 @@ func newProductHandler(
 	getByIDHandler query.GetProductByIDQueryHandler,
 	getRandomHandler query.GetRandomProductsQueryHandler,
 	getListHandler query.GetListProductsQueryHandler,
+	getFacetsHandler query.GetProductFacetsQueryHandler,
 	attributeRepo attributeview.Repository,
 ) httpapi.Handler {
 	return &productHandler{
 		getByIDHandler:   getByIDHandler,
 		getRandomHandler: getRandomHandler,
 		getListHandler:   getListHandler,
+		getFacetsHandler: getFacetsHandler,
 		attributeRepo:    attributeRepo,
 	}
 }
@@ -304,5 +307,34 @@ func (h *productHandler) GetProductList(ctx context.Context, params httpapi.GetP
 		Page:  result.Page,
 		Size:  result.Size,
 		Total: int(result.Total),
+	}, nil
+}
+
+func (h *productHandler) GetProductFacets(ctx context.Context, params httpapi.GetProductFacetsParams) (httpapi.GetProductFacetsRes, error) {
+	q := query.GetProductFacetsQuery{CategoryID: params.CategoryId}
+
+	result, err := h.getFacetsHandler.Handle(ctx, q)
+	if err != nil {
+		return nil, err
+	}
+
+	facets := lo.Map(result.Facets, func(f productview.AttributeFacet, _ int) httpapi.AttributeFacet {
+		return httpapi.AttributeFacet{
+			Slug: f.Slug,
+			Values: lo.Map(f.Values, func(v productview.FacetValue, _ int) httpapi.FacetValue {
+				return httpapi.FacetValue{
+					Value: v.Value,
+					Count: v.Count,
+				}
+			}),
+		}
+	})
+
+	return &httpapi.FacetsResponse{
+		Facets: facets,
+		PriceRange: httpapi.PriceRange{
+			Min: result.PriceRange.Min,
+			Max: result.PriceRange.Max,
+		},
 	}, nil
 }

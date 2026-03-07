@@ -6,7 +6,7 @@ require (
 	github.com/Sokol111/ecommerce-catalog-service-api v1.0.11
 	github.com/Sokol111/ecommerce-commons v0.4.6
 	github.com/Sokol111/ecommerce-image-service-api v1.0.34
-	github.com/Sokol111/ecommerce-product-query-service-api v1.0.22
+	github.com/Sokol111/ecommerce-product-query-service-api v1.0.24
 	github.com/samber/lo v1.52.0
 	go.mongodb.org/mongo-driver/v2 v2.5.0
 	go.uber.org/fx v1.24.0

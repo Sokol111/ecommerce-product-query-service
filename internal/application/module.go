@@ -13,6 +13,7 @@ func Module() fx.Option {
 			query.NewGetProductByIDHandler,
 			query.NewGetRandomProductsHandler,
 			query.NewGetListProductsHandler,
+			query.NewGetProductFacetsHandler,
 		),
 	)
 }

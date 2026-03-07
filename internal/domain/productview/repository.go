@@ -41,4 +41,7 @@ type Repository interface {
 
 	// FindList retrieves a paginated list of products
 	FindList(ctx context.Context, query ListQuery) (*commonsmongo.PageResult[ProductView], error)
+
+	// FindFacets computes attribute facets and price range for enabled products in a category
+	FindFacets(ctx context.Context, categoryID string) (*FacetsResult, error)
 }

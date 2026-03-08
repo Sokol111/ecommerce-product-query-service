@@ -3,6 +3,7 @@ package mongo
 import (
 	"context"
 	"fmt"
+	"strconv"
 
 	"github.com/samber/lo"
 
@@ -185,13 +186,26 @@ func (r *productViewRepository) appendPriceFilter(filter bson.D, minPrice, maxPr
 	return append(filter, bson.E{Key: "price", Value: priceFilter})
 }
 
+func coerceFilterValue(s string) any {
+	if b, err := strconv.ParseBool(s); err == nil {
+		return b
+	}
+	if f, err := strconv.ParseFloat(s, 64); err == nil {
+		return f
+	}
+	return s
+}
+
 func (r *productViewRepository) appendAttributeFilters(filter bson.D, attrFilters []productview.AttributeFilter) bson.D {
 	for _, attrFilter := range attrFilters {
 		attrKey := "attrs." + attrFilter.Slug
 
 		if len(attrFilter.Values) > 0 {
-			// For single/multiple type: match any of the values
-			filter = append(filter, bson.E{Key: attrKey, Value: bson.M{"$in": attrFilter.Values}})
+			// Coerce string values to native types (bool/numeric) for proper MongoDB type matching
+			values := lo.Map(attrFilter.Values, func(v string, _ int) any {
+				return coerceFilterValue(v)
+			})
+			filter = append(filter, bson.E{Key: attrKey, Value: bson.M{"$in": values}})
 		} else if attrFilter.Min != nil || attrFilter.Max != nil {
 			// For range type: numeric comparison
 			rangeFilter := bson.M{}

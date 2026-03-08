@@ -10,7 +10,7 @@ type AttributeValue struct {
 	Slug             string // Immutable attribute slug for filtering
 	OptionSlugValue  *string
 	OptionSlugValues []string
-	NumericValue     *float32
+	NumericValue     *float64
 	TextValue        *string
 	BooleanValue     *bool
 }
@@ -22,7 +22,7 @@ type ProductView struct {
 	Version       int
 	Name          string
 	Description   *string
-	Price         float32
+	Price         float64
 	Quantity      int
 	ImageID       *string
 	SmallImageURL *string // Small image URL (400px) for thumbnails and listings
@@ -36,7 +36,7 @@ type ProductView struct {
 }
 
 // Reconstruct creates a ProductView from persistence data
-func Reconstruct(id string, version int, name string, description *string, price float32, quantity int, imageID *string, smallImageURL *string, largeImageURL *string, categoryID *string, enabled bool, createdAt, modifiedAt time.Time, attributes []AttributeValue, attrs map[string]any) *ProductView {
+func Reconstruct(id string, version int, name string, description *string, price float64, quantity int, imageID *string, smallImageURL *string, largeImageURL *string, categoryID *string, enabled bool, createdAt, modifiedAt time.Time, attributes []AttributeValue, attrs map[string]any) *ProductView {
 	return &ProductView{
 		ID:            id,
 		Version:       version,
@@ -57,7 +57,7 @@ func Reconstruct(id string, version int, name string, description *string, price
 }
 
 // NewProductView creates a new product view from event data
-func NewProductView(id string, version int, name string, description *string, price float32, quantity int, imageID *string, categoryID *string, enabled bool, createdAt, modifiedAt time.Time, attributes []AttributeValue, attrs map[string]any) *ProductView {
+func NewProductView(id string, version int, name string, description *string, price float64, quantity int, imageID *string, categoryID *string, enabled bool, createdAt, modifiedAt time.Time, attributes []AttributeValue, attrs map[string]any) *ProductView {
 	return &ProductView{
 		ID:            id,
 		Version:       version,

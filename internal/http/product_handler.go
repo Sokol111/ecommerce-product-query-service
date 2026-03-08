@@ -58,8 +58,8 @@ func toOptString(s *string) httpapi.OptString {
 	return httpapi.NewOptString(*s)
 }
 
-func formatFloat(f float32) string {
-	return strconv.FormatFloat(float64(f), 'f', -1, 32)
+func formatFloat(f float64) string {
+	return strconv.FormatFloat(f, 'f', -1, 64)
 }
 
 func formatBool(b bool) string {
@@ -151,7 +151,7 @@ func toProductResponseWithMasterData(p *productview.ProductView, attrByID map[st
 		ID:            p.ID,
 		Name:          p.Name,
 		Description:   toOptString(p.Description),
-		Price:         float64(p.Price),
+		Price:         p.Price,
 		Quantity:      p.Quantity,
 		ImageId:       toOptString(p.ImageID),
 		SmallImageUrl: toOptString(p.SmallImageURL),

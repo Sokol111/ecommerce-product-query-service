@@ -190,9 +190,6 @@ func coerceFilterValue(s string) any {
 	if b, err := strconv.ParseBool(s); err == nil {
 		return b
 	}
-	if f, err := strconv.ParseFloat(s, 64); err == nil {
-		return f
-	}
 	return s
 }
 

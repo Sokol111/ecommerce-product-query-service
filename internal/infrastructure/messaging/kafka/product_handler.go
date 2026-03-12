@@ -94,6 +94,10 @@ func (h *productHandler) fetchAttributeSlugs(ctx context.Context, eventAttrs *[]
 		return nil, err
 	}
 
+	if len(attrs) < len(attrIDs) {
+		return nil, fmt.Errorf("missing %d of %d attribute slugs", len(attrIDs)-len(attrs), len(attrIDs))
+	}
+
 	return lo.SliceToMap(attrs, func(a *attributeview.AttributeView) (string, string) {
 		return a.ID, a.Slug
 	}), nil

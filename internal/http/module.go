@@ -1,4 +1,4 @@
-package http
+package http //nolint:revive // intentional package name
 
 import (
 	"net/http"

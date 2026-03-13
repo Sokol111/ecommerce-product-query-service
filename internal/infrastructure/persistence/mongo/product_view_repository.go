@@ -285,7 +285,7 @@ func (r *productViewRepository) FindFacets(ctx context.Context, categoryID strin
 	if err != nil {
 		return nil, fmt.Errorf("failed to aggregate facets: %w", err)
 	}
-	defer func() { _ = cursor.Close(ctx) }()
+	defer func() { _ = cursor.Close(ctx) }() //nolint:errcheck // cursor.Close error is not actionable
 
 	var results []facetsAggregationResult
 	if err = cursor.All(ctx, &results); err != nil {

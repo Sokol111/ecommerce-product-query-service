@@ -10,8 +10,6 @@ mongo:
   port: 27017
   database: "product-query"
   replica-set: rs0
-  migrations:
-    enabled: true
 
 kafka:
   brokers: "redpanda:29092"

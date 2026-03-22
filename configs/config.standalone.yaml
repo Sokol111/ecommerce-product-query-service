@@ -10,8 +10,6 @@ mongo:
   port: 27017
   database: "product-query"
   direct-connection: true
-  migrations:
-    enabled: true
 
 kafka:
   brokers: "localhost:9092"

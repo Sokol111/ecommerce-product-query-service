@@ -4,9 +4,9 @@ go 1.26.1
 
 require (
 	github.com/Sokol111/ecommerce-catalog-service-api v1.1.2
-	github.com/Sokol111/ecommerce-commons v0.5.1
+	github.com/Sokol111/ecommerce-commons v0.5.3
 	github.com/Sokol111/ecommerce-image-service-api v1.1.0
-	github.com/Sokol111/ecommerce-product-query-service-api v1.1.0
+	github.com/Sokol111/ecommerce-product-query-service-api v1.1.2
 	github.com/samber/lo v1.53.0
 	go.mongodb.org/mongo-driver/v2 v2.5.0
 	go.uber.org/fx v1.24.0

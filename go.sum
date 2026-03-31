@@ -8,8 +8,8 @@ github.com/Microsoft/go-winio v0.6.2 h1:F2VQgta7ecxGYO8k3ZZz3RS8fVIXVxONVUPlNERo
 github.com/Microsoft/go-winio v0.6.2/go.mod h1:yd8OoFMLzJbo9gZq8j5qaps8bJ9aShtEA8Ipt1oGCvU=
 github.com/Sokol111/ecommerce-catalog-service-api v1.1.4 h1:dpWy3SBg7X2X2wIcY472AL8TPX/w3NZoZW+oNaBArIw=
 github.com/Sokol111/ecommerce-catalog-service-api v1.1.4/go.mod h1:frWc5XuwYbQ7iuvm5dN03z1LiC3BHZCPBglnVtimoSw=
-github.com/Sokol111/ecommerce-commons v0.5.6 h1:h0RXpkeudeFaT4oaz8C6VQ69he1iQCfGrPzJ+dHSzSs=
-github.com/Sokol111/ecommerce-commons v0.5.6/go.mod h1:TZd4ZiAjD7s+cV8rhQNF3NhI66hdhBK8wS7eTq7iK50=
+github.com/Sokol111/ecommerce-commons v0.5.7 h1:ao1vclFtGW0J/2e0vnr2CDrelW5txb5H9YQyZDd4ilQ=
+github.com/Sokol111/ecommerce-commons v0.5.7/go.mod h1:C+f4e7KbdQ9SL3hDHJti2cfsC2sFOokRFgl6OV5xevs=
 github.com/Sokol111/ecommerce-image-service-api v1.1.4 h1:JwqaLyGwRZqLXX2peHRt2g03Wjuvob42PQ/vrI6PwWE=
 github.com/Sokol111/ecommerce-image-service-api v1.1.4/go.mod h1:NzU/kUbto6deOc1oSIvq0dLa8goUYre7u5Zck86gT8U=
 github.com/Sokol111/ecommerce-product-query-service-api v1.1.2 h1:Pr0tG+GumD+4w+zmbvryKEZjrslyGz4Oz4NaYt4sXyI=

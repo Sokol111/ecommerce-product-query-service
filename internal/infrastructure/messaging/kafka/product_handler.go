@@ -28,6 +28,8 @@ func (h *productHandler) Process(ctx context.Context, event any) error {
 	// Product events
 	case *catalog_events.ProductUpdatedEvent:
 		return h.handleProductUpdated(ctx, evt)
+	case *catalog_events.ProductDeletedEvent:
+		return h.handleProductDeleted(ctx, evt)
 
 	// Image events (published to same topic with product_id as partition key)
 	case *image_events.ProductImagePromotedEvent:
@@ -117,6 +119,18 @@ func buildAttrsMap(eventAttrs []catalog_events.AttributeValue) map[string]any {
 		}
 	}
 	return attrs
+}
+
+func (h *productHandler) handleProductDeleted(ctx context.Context, e *catalog_events.ProductDeletedEvent) error {
+	if err := h.repo.Delete(ctx, e.Payload.ProductID); err != nil {
+		return fmt.Errorf("failed to delete product view: %w", err)
+	}
+
+	h.log(ctx).Debug("product view deleted",
+		zap.String("productID", e.Payload.ProductID),
+		zap.String("eventID", e.Metadata.EventID))
+
+	return nil
 }
 
 func (h *productHandler) handleProductImagePromoted(ctx context.Context, e *image_events.ProductImagePromotedEvent) error {

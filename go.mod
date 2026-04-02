@@ -3,7 +3,7 @@ module github.com/Sokol111/ecommerce-product-query-service
 go 1.26.1
 
 require (
-	github.com/Sokol111/ecommerce-catalog-service-api v1.1.4
+	github.com/Sokol111/ecommerce-catalog-service-api v1.1.5
 	github.com/Sokol111/ecommerce-commons v0.5.9
 	github.com/Sokol111/ecommerce-image-service-api v1.1.4
 	github.com/Sokol111/ecommerce-product-query-service-api v1.1.2

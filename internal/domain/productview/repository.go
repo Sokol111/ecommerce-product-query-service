@@ -44,4 +44,6 @@ type Repository interface {
 
 	// FindFacets computes attribute facets and price range for enabled products in a category
 	FindFacets(ctx context.Context, categoryID string) (*FacetsResult, error)
+
+	Delete(ctx context.Context, id string) error
 }

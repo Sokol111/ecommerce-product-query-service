@@ -16,6 +16,7 @@ import (
 	"github.com/Sokol111/ecommerce-product-query-service/internal/http"
 	"github.com/Sokol111/ecommerce-product-query-service/internal/infrastructure/messaging/kafka"
 	"github.com/Sokol111/ecommerce-product-query-service/internal/infrastructure/persistence/mongo"
+	tenantapi "github.com/Sokol111/ecommerce-tenant-service-api/gen/httpapi"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 )
@@ -23,7 +24,7 @@ import (
 var AppModules = fx.Options(
 	// Commons
 	commons_core.NewCoreModule(),
-	commons_persistence.NewPersistenceModule(),
+	commons_persistence.NewPersistenceModule(commons_persistence.WithTenantMigrations()),
 	commons_http.NewHTTPModule(),
 	commons_observability.NewObservabilityModule(),
 	commons_messaging.NewMessagingModule(),
@@ -32,6 +33,7 @@ var AppModules = fx.Options(
 
 	// Tenant
 	tenant.MiddlewareModule(),
+	tenantapi.NewTenantSlugsModule("clients.tenant-service"),
 
 	// Application
 	mongo.Module(),

@@ -15,8 +15,8 @@ type attributeViewRepository struct {
 	mapper *attributeViewMapper
 }
 
-func newAttributeViewRepository(mongo commonsmongo.Mongo, mapper *attributeViewMapper) (attributeview.Repository, error) {
-	genericRepo, err := commonsmongo.NewGenericRepository(mongo.GetCollection("attribute_view"), mapper)
+func newAttributeViewRepository(admin commonsmongo.Admin, mapper *attributeViewMapper) (attributeview.Repository, error) {
+	genericRepo, err := commonsmongo.NewTenantRepository(admin, "attribute_view", mapper)
 	if err != nil {
 		return nil, err
 	}

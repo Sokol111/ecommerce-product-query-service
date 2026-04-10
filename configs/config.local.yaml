@@ -48,3 +48,7 @@ observability:
 pprof:
   enabled: true
   port: 6060
+
+clients:
+  tenant-service:
+    base-url: "http://ecommerce-tenant-service:8080"

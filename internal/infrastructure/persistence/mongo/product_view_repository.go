@@ -18,20 +18,17 @@ import (
 
 type productViewRepository struct {
 	*commonsmongo.GenericRepository[productview.ProductView, productViewEntity]
-	collection *mongodriver.Collection
-	mapper     *productViewMapper
+	mapper *productViewMapper
 }
 
-func newProductViewRepository(mongo commonsmongo.Mongo, mapper *productViewMapper) (productview.Repository, error) {
-	collection := mongo.GetCollection("product_view")
-	genericRepo, err := commonsmongo.NewGenericRepository(collection, mapper)
+func newProductViewRepository(admin commonsmongo.Admin, mapper *productViewMapper) (productview.Repository, error) {
+	genericRepo, err := commonsmongo.NewTenantRepository(admin, "product_view", mapper)
 	if err != nil {
 		return nil, err
 	}
 
 	return &productViewRepository{
 		GenericRepository: genericRepo,
-		collection:        collection,
 		mapper:            mapper,
 	}, nil
 }
@@ -74,7 +71,7 @@ func (r *productViewRepository) Upsert(ctx context.Context, product *productview
 	}
 
 	opts := options.UpdateOne().SetUpsert(true)
-	result, err := r.collection.UpdateOne(ctx, filter, update, opts)
+	result, err := r.Collection(ctx).UpdateOne(ctx, filter, update, opts)
 	if err != nil {
 		return fmt.Errorf("failed to upsert product view: %w", err)
 	}
@@ -100,7 +97,7 @@ func (r *productViewRepository) UpdateImageURLs(ctx context.Context, productID, 
 		}},
 	}
 
-	result, err := r.collection.UpdateOne(ctx, filter, update)
+	result, err := r.Collection(ctx).UpdateOne(ctx, filter, update)
 	if err != nil {
 		return fmt.Errorf("failed to update image URLs: %w", err)
 	}
@@ -120,7 +117,7 @@ func (r *productViewRepository) FindRandom(ctx context.Context, count int) ([]*p
 		{{Key: "$sample", Value: bson.D{{Key: "size", Value: count}}}},
 	}
 
-	cursor, err := r.collection.Aggregate(ctx, pipeline)
+	cursor, err := r.Collection(ctx).Aggregate(ctx, pipeline)
 	if err != nil {
 		return nil, fmt.Errorf("failed to aggregate random products: %w", err)
 	}
@@ -281,7 +278,7 @@ func (r *productViewRepository) FindFacets(ctx context.Context, categoryID strin
 
 	pipeline := mongodriver.Pipeline{matchStage, facetStage}
 
-	cursor, err := r.collection.Aggregate(ctx, pipeline)
+	cursor, err := r.Collection(ctx).Aggregate(ctx, pipeline)
 	if err != nil {
 		return nil, fmt.Errorf("failed to aggregate facets: %w", err)
 	}

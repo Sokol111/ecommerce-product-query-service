@@ -32,6 +32,12 @@ kafka:
         initial-backoff: 2s
         max-backoff: 30s
         enable-dlq: true
+      - name: "tenant-events"
+        topic: "tenant.tenant.events"
+        max-retries: 5
+        initial-backoff: 2s
+        max-backoff: 30s
+        enable-dlq: true
 
 security:
   token:

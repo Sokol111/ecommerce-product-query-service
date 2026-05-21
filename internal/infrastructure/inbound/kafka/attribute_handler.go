@@ -9,17 +9,17 @@ import (
 	catalog_events "github.com/Sokol111/ecommerce-catalog-service-api/gen/events"
 	"github.com/Sokol111/ecommerce-commons/pkg/core/logger"
 	"github.com/Sokol111/ecommerce-commons/pkg/messaging/kafka/consumer"
-	"github.com/Sokol111/ecommerce-product-query-service/internal/domain/attributeview"
+	"github.com/Sokol111/ecommerce-product-query-service/internal/application/attributeview"
 	"go.uber.org/zap"
 )
 
 type attributeHandler struct {
-	repo attributeview.Repository
+	upsertHandler attributeview.UpsertAttributeCommandHandler
 }
 
-func newAttributeHandler(repo attributeview.Repository) *attributeHandler {
+func newAttributeHandler(upsertHandler attributeview.UpsertAttributeCommandHandler) *attributeHandler {
 	return &attributeHandler{
-		repo: repo,
+		upsertHandler: upsertHandler,
 	}
 }
 
@@ -48,8 +48,9 @@ func (h *attributeHandler) handleAttributeUpdated(ctx context.Context, e *catalo
 		lo.Map(e.Payload.Options, mapOption),
 	)
 
-	if err := h.repo.Upsert(ctx, view); err != nil {
-		return fmt.Errorf("failed to upsert attribute view: %w", err)
+	cmd := attributeview.UpsertAttributeCommand{Attribute: view}
+	if err := h.upsertHandler.Handle(ctx, cmd); err != nil {
+		return err
 	}
 
 	h.log(ctx).Debug("attribute view updated",

@@ -5,7 +5,7 @@ import (
 
 	"github.com/Sokol111/ecommerce-commons/pkg/core/logger"
 	commonsmongo "github.com/Sokol111/ecommerce-commons/pkg/persistence/mongo"
-	"github.com/Sokol111/ecommerce-product-query-service/internal/domain/attributeview"
+	"github.com/Sokol111/ecommerce-product-query-service/internal/application/attributeview"
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.uber.org/zap"
 )

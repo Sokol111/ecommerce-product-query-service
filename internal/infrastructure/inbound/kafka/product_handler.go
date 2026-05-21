@@ -8,18 +8,26 @@ import (
 	"github.com/Sokol111/ecommerce-commons/pkg/core/logger"
 	"github.com/Sokol111/ecommerce-commons/pkg/messaging/kafka/consumer"
 	image_events "github.com/Sokol111/ecommerce-image-service-api/gen/events"
-	"github.com/Sokol111/ecommerce-product-query-service/internal/domain/productview"
+	"github.com/Sokol111/ecommerce-product-query-service/internal/application/productview"
 	"github.com/samber/lo"
 	"go.uber.org/zap"
 )
 
 type productHandler struct {
-	repo productview.Repository
+	upsertHandler      productview.UpsertProductCommandHandler
+	deleteHandler      productview.DeleteProductCommandHandler
+	updateImageHandler productview.UpdateImageURLsCommandHandler
 }
 
-func newProductHandler(repo productview.Repository) *productHandler {
+func newProductHandler(
+	upsertHandler productview.UpsertProductCommandHandler,
+	deleteHandler productview.DeleteProductCommandHandler,
+	updateImageHandler productview.UpdateImageURLsCommandHandler,
+) *productHandler {
 	return &productHandler{
-		repo: repo,
+		upsertHandler:      upsertHandler,
+		deleteHandler:      deleteHandler,
+		updateImageHandler: updateImageHandler,
 	}
 }
 
@@ -61,8 +69,8 @@ func (h *productHandler) handleProductUpdated(ctx context.Context, e *catalog_ev
 		attrs,
 	)
 
-	if err := h.repo.Upsert(ctx, view); err != nil {
-		return fmt.Errorf("failed to upsert product view: %w", err)
+	if err := h.upsertHandler.Handle(ctx, productview.UpsertProductCommand{Product: view}); err != nil {
+		return err
 	}
 
 	h.log(ctx).Debug("product view updated",
@@ -122,8 +130,9 @@ func buildAttrsMap(eventAttrs []catalog_events.AttributeValue) map[string]any {
 }
 
 func (h *productHandler) handleProductDeleted(ctx context.Context, e *catalog_events.ProductDeletedEvent) error {
-	if err := h.repo.Delete(ctx, e.Payload.ProductID); err != nil {
-		return fmt.Errorf("failed to delete product view: %w", err)
+	cmd := productview.DeleteProductCommand{ProductID: e.Payload.ProductID}
+	if err := h.deleteHandler.Handle(ctx, cmd); err != nil {
+		return err
 	}
 
 	h.log(ctx).Debug("product view deleted",
@@ -134,8 +143,14 @@ func (h *productHandler) handleProductDeleted(ctx context.Context, e *catalog_ev
 }
 
 func (h *productHandler) handleProductImagePromoted(ctx context.Context, e *image_events.ProductImagePromotedEvent) error {
-	if err := h.repo.UpdateImageURLs(ctx, e.Payload.ProductID, e.Payload.ImageID, e.Payload.SmallImageURL, e.Payload.LargeImageURL); err != nil {
-		return fmt.Errorf("failed to update product image URLs: %w", err)
+	cmd := productview.UpdateImageURLsCommand{
+		ProductID:     e.Payload.ProductID,
+		ImageID:       e.Payload.ImageID,
+		SmallImageURL: e.Payload.SmallImageURL,
+		LargeImageURL: e.Payload.LargeImageURL,
+	}
+	if err := h.updateImageHandler.Handle(ctx, cmd); err != nil {
+		return err
 	}
 
 	h.log(ctx).Debug("product image URLs updated",

@@ -1,4 +1,4 @@
-package query
+package productview
 
 import (
 	"context"
@@ -6,7 +6,6 @@ import (
 	"fmt"
 
 	"github.com/Sokol111/ecommerce-commons/pkg/persistence/mongo"
-	"github.com/Sokol111/ecommerce-product-query-service/internal/domain/productview"
 )
 
 type GetProductByIDQuery struct {
@@ -14,18 +13,18 @@ type GetProductByIDQuery struct {
 }
 
 type GetProductByIDQueryHandler interface {
-	Handle(ctx context.Context, query GetProductByIDQuery) (*productview.ProductView, error)
+	Handle(ctx context.Context, query GetProductByIDQuery) (*ProductView, error)
 }
 
 type getProductByIDHandler struct {
-	repo productview.Repository
+	repo Repository
 }
 
-func NewGetProductByIDHandler(repo productview.Repository) GetProductByIDQueryHandler {
+func NewGetProductByIDHandler(repo Repository) GetProductByIDQueryHandler {
 	return &getProductByIDHandler{repo: repo}
 }
 
-func (h *getProductByIDHandler) Handle(ctx context.Context, query GetProductByIDQuery) (*productview.ProductView, error) {
+func (h *getProductByIDHandler) Handle(ctx context.Context, query GetProductByIDQuery) (*ProductView, error) {
 	p, err := h.repo.FindByID(ctx, query.ID)
 	if err != nil {
 		if errors.Is(err, mongo.ErrEntityNotFound) {

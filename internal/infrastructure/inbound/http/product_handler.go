@@ -12,16 +12,15 @@ import (
 
 	"github.com/Sokol111/ecommerce-commons/pkg/persistence/mongo"
 	"github.com/Sokol111/ecommerce-product-query-service-api/gen/httpapi"
-	"github.com/Sokol111/ecommerce-product-query-service/internal/application/query"
-	"github.com/Sokol111/ecommerce-product-query-service/internal/domain/attributeview"
-	"github.com/Sokol111/ecommerce-product-query-service/internal/domain/productview"
+	"github.com/Sokol111/ecommerce-product-query-service/internal/application/attributeview"
+	"github.com/Sokol111/ecommerce-product-query-service/internal/application/productview"
 )
 
 type productHandler struct {
-	getByIDHandler   query.GetProductByIDQueryHandler
-	getRandomHandler query.GetRandomProductsQueryHandler
-	getListHandler   query.GetListProductsQueryHandler
-	getFacetsHandler query.GetProductFacetsQueryHandler
+	getByIDHandler   productview.GetProductByIDQueryHandler
+	getRandomHandler productview.GetRandomProductsQueryHandler
+	getListHandler   productview.GetListProductsQueryHandler
+	getFacetsHandler productview.GetProductFacetsQueryHandler
 	attributeRepo    attributeview.Repository
 }
 
@@ -36,10 +35,10 @@ func init() {
 }
 
 func newProductHandler(
-	getByIDHandler query.GetProductByIDQueryHandler,
-	getRandomHandler query.GetRandomProductsQueryHandler,
-	getListHandler query.GetListProductsQueryHandler,
-	getFacetsHandler query.GetProductFacetsQueryHandler,
+	getByIDHandler productview.GetProductByIDQueryHandler,
+	getRandomHandler productview.GetRandomProductsQueryHandler,
+	getListHandler productview.GetListProductsQueryHandler,
+	getFacetsHandler productview.GetProductFacetsQueryHandler,
 	attributeRepo attributeview.Repository,
 ) httpapi.Handler {
 	return &productHandler{
@@ -212,7 +211,7 @@ func (h *productHandler) toProductResponse(ctx context.Context, p *productview.P
 }
 
 func (h *productHandler) GetProductById(ctx context.Context, params httpapi.GetProductByIdParams) (httpapi.GetProductByIdRes, error) { //nolint:revive // method name defined by ogen-generated interface
-	q := query.GetProductByIDQuery{ID: params.ID}
+	q := productview.GetProductByIDQuery{ID: params.ID}
 
 	found, err := h.getByIDHandler.Handle(ctx, q)
 	if errors.Is(err, mongo.ErrEntityNotFound) {
@@ -235,7 +234,7 @@ func (h *productHandler) GetProductById(ctx context.Context, params httpapi.GetP
 }
 
 func (h *productHandler) GetRandomProducts(ctx context.Context, params httpapi.GetRandomProductsParams) (httpapi.GetRandomProductsRes, error) {
-	q := query.GetRandomProductsQuery{Count: params.Count}
+	q := productview.GetRandomProductsQuery{Count: params.Count}
 
 	products, err := h.getRandomHandler.Handle(ctx, q)
 	if err != nil {
@@ -267,7 +266,7 @@ func (h *productHandler) GetProductList(ctx context.Context, params httpapi.GetP
 	}
 
 	// Parse attribute filters from JSON string
-	var attributeFilters []query.AttributeFilter
+	var attributeFilters []productview.AttributeFilter
 	if params.AttributeFilters.IsSet() && params.AttributeFilters.Value != "" {
 		if err := json.Unmarshal([]byte(params.AttributeFilters.Value), &attributeFilters); err != nil {
 			//nolint:nilerr // returning HTTP 400 response instead of error
@@ -280,7 +279,7 @@ func (h *productHandler) GetProductList(ctx context.Context, params httpapi.GetP
 		}
 	}
 
-	q := query.GetListProductsQuery{
+	q := productview.GetListProductsQuery{
 		Page:             params.Page,
 		Size:             params.Size,
 		CategoryID:       categoryID,
@@ -311,7 +310,7 @@ func (h *productHandler) GetProductList(ctx context.Context, params httpapi.GetP
 }
 
 func (h *productHandler) GetProductFacets(ctx context.Context, params httpapi.GetProductFacetsParams) (httpapi.GetProductFacetsRes, error) {
-	q := query.GetProductFacetsQuery{CategoryID: params.CategoryId}
+	q := productview.GetProductFacetsQuery{CategoryID: params.CategoryId}
 
 	result, err := h.getFacetsHandler.Handle(ctx, q)
 	if err != nil {

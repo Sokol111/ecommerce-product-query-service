@@ -4,7 +4,7 @@ import (
 	"github.com/samber/lo"
 
 	commonsmongo "github.com/Sokol111/ecommerce-commons/pkg/persistence/mongo"
-	"github.com/Sokol111/ecommerce-product-query-service/internal/domain/attributeview"
+	"github.com/Sokol111/ecommerce-product-query-service/internal/application/attributeview"
 )
 
 type attributeViewMapper struct{}

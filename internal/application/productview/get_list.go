@@ -1,21 +1,11 @@
-package query
+package productview
 
 import (
 	"context"
 	"fmt"
 
 	"github.com/samber/lo"
-
-	"github.com/Sokol111/ecommerce-product-query-service/internal/domain/productview"
 )
-
-// AttributeFilter represents a filter for a single attribute
-type AttributeFilter struct {
-	Slug   string
-	Values []string // For single/multiple type attributes
-	Min    *float64 // For range type attributes
-	Max    *float64 // For range type attributes
-}
 
 type GetListProductsQuery struct {
 	Page             int
@@ -29,7 +19,7 @@ type GetListProductsQuery struct {
 }
 
 type ListProductsResult struct {
-	Items []*productview.ProductView
+	Items []*ProductView
 	Page  int
 	Size  int
 	Total int64
@@ -40,15 +30,15 @@ type GetListProductsQueryHandler interface {
 }
 
 type getListProductsHandler struct {
-	repo productview.Repository
+	repo Repository
 }
 
-func NewGetListProductsHandler(repo productview.Repository) GetListProductsQueryHandler {
+func NewGetListProductsHandler(repo Repository) GetListProductsQueryHandler {
 	return &getListProductsHandler{repo: repo}
 }
 
 func (h *getListProductsHandler) Handle(ctx context.Context, query GetListProductsQuery) (*ListProductsResult, error) {
-	listQuery := productview.ListQuery{
+	listQuery := ListQuery{
 		Page:             query.Page,
 		Size:             query.Size,
 		CategoryID:       query.CategoryID,
@@ -72,8 +62,8 @@ func (h *getListProductsHandler) Handle(ctx context.Context, query GetListProduc
 	}, nil
 }
 
-func mapAttributeFilter(f AttributeFilter, _ int) productview.AttributeFilter {
-	return productview.AttributeFilter{
+func mapAttributeFilter(f AttributeFilter, _ int) AttributeFilter {
+	return AttributeFilter{
 		Slug:   f.Slug,
 		Values: f.Values,
 		Min:    f.Min,

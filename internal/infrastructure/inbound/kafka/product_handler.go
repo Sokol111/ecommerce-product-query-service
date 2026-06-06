@@ -2,11 +2,9 @@ package kafka
 
 import (
 	"context"
-	"fmt"
 
 	catalog_events "github.com/Sokol111/ecommerce-catalog-service-api/gen/events"
 	"github.com/Sokol111/ecommerce-commons/pkg/core/logger"
-	"github.com/Sokol111/ecommerce-commons/pkg/messaging/kafka/consumer"
 	image_events "github.com/Sokol111/ecommerce-image-service-api/gen/events"
 	"github.com/Sokol111/ecommerce-product-query-service/internal/application/productview"
 	"github.com/samber/lo"
@@ -31,26 +29,7 @@ func newProductHandler(
 	}
 }
 
-func (h *productHandler) Process(ctx context.Context, event any) error {
-	switch evt := event.(type) {
-	// Product events
-	case *catalog_events.ProductUpdatedEvent:
-		return h.handleProductUpdated(ctx, evt)
-	case *catalog_events.ProductDeletedEvent:
-		return h.handleProductDeleted(ctx, evt)
-
-	// Image events (published to same topic with product_id as partition key)
-	case *image_events.ProductImagePromotedEvent:
-		return h.handleProductImagePromoted(ctx, evt)
-
-	default:
-		logger.Get(ctx).Warn("unknown event type, skipping",
-			zap.String("type", fmt.Sprintf("%T", event)))
-		return fmt.Errorf("unhandled event type: %T: %w", event, consumer.ErrSkipMessage)
-	}
-}
-
-func (h *productHandler) handleProductUpdated(ctx context.Context, e *catalog_events.ProductUpdatedEvent) error {
+func (h *productHandler) HandleProductUpdated(ctx context.Context, e *catalog_events.ProductUpdatedEvent) error {
 	attributes, attrs := mapAttributes(e.Payload.Attributes)
 
 	view := productview.NewProductView(
@@ -129,7 +108,7 @@ func buildAttrsMap(eventAttrs []catalog_events.AttributeValue) map[string]any {
 	return attrs
 }
 
-func (h *productHandler) handleProductDeleted(ctx context.Context, e *catalog_events.ProductDeletedEvent) error {
+func (h *productHandler) HandleProductDeleted(ctx context.Context, e *catalog_events.ProductDeletedEvent) error {
 	cmd := productview.DeleteProductCommand{ProductID: e.Payload.ProductID}
 	if err := h.deleteHandler.Handle(ctx, cmd); err != nil {
 		return err
@@ -142,7 +121,7 @@ func (h *productHandler) handleProductDeleted(ctx context.Context, e *catalog_ev
 	return nil
 }
 
-func (h *productHandler) handleProductImagePromoted(ctx context.Context, e *image_events.ProductImagePromotedEvent) error {
+func (h *productHandler) HandleProductImagePromoted(ctx context.Context, e *image_events.ProductImagePromotedEvent) error {
 	cmd := productview.UpdateImageURLsCommand{
 		ProductID:     e.Payload.ProductID,
 		ImageID:       e.Payload.ImageID,

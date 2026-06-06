@@ -19,6 +19,7 @@ import (
 	"github.com/Sokol111/ecommerce-product-query-service/internal/infrastructure/inbound/kafka"
 	"github.com/Sokol111/ecommerce-product-query-service/internal/infrastructure/outbound/mongo"
 	tenantapi "github.com/Sokol111/ecommerce-tenant-service-api/gen/httpapi"
+	"github.com/Sokol111/ecommerce-tenant-service-api/tenantevents"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 )
@@ -38,7 +39,7 @@ var AppModules = fx.Options(
 	// Tenant
 	tenant.MiddlewareModule(),
 	tenantapi.NewTenantSlugsModule(),
-	tenantapi.TenantEventsModule(),
+	tenantevents.Module(),
 
 	httpapi.ServerModule(),
 

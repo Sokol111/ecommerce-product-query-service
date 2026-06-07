@@ -5,6 +5,7 @@ import (
 
 	"github.com/Sokol111/ecommerce-commons/pkg/core/logger"
 	commonsmongo "github.com/Sokol111/ecommerce-commons/pkg/persistence/mongo"
+	"github.com/Sokol111/ecommerce-commons/pkg/tenant"
 	"github.com/Sokol111/ecommerce-product-query-service/internal/application/attributeview"
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.uber.org/zap"
@@ -16,7 +17,7 @@ type attributeViewRepository struct {
 }
 
 func newAttributeViewRepository(admin commonsmongo.Admin, mapper *attributeViewMapper) (attributeview.Repository, error) {
-	genericRepo, err := commonsmongo.NewTenantRepository(admin, "attribute_view", mapper)
+	genericRepo, err := commonsmongo.NewTenantRepository(admin, "attribute_view", mapper, tenant.MustSlugFromContext)
 	if err != nil {
 		return nil, err
 	}

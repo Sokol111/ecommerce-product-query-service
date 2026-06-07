@@ -9,6 +9,7 @@ import (
 
 	"github.com/Sokol111/ecommerce-commons/pkg/core/logger"
 	commonsmongo "github.com/Sokol111/ecommerce-commons/pkg/persistence/mongo"
+	"github.com/Sokol111/ecommerce-commons/pkg/tenant"
 	"github.com/Sokol111/ecommerce-product-query-service/internal/application/productview"
 	"go.mongodb.org/mongo-driver/v2/bson"
 	mongodriver "go.mongodb.org/mongo-driver/v2/mongo"
@@ -22,7 +23,7 @@ type productViewRepository struct {
 }
 
 func newProductViewRepository(admin commonsmongo.Admin, mapper *productViewMapper) (productview.Repository, error) {
-	genericRepo, err := commonsmongo.NewTenantRepository(admin, "product_view", mapper)
+	genericRepo, err := commonsmongo.NewTenantRepository(admin, "product_view", mapper, tenant.MustSlugFromContext)
 	if err != nil {
 		return nil, err
 	}

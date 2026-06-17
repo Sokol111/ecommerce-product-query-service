@@ -13,12 +13,13 @@ import (
 	commons_validation "github.com/Sokol111/ecommerce-commons/pkg/security/validation"
 	commons_swaggerui "github.com/Sokol111/ecommerce-commons/pkg/swaggerui"
 	"github.com/Sokol111/ecommerce-commons/pkg/tenant"
-	"github.com/Sokol111/ecommerce-product-query-service-api/gen/httpapi"
 	"github.com/Sokol111/ecommerce-product-query-service/internal/application"
-	"github.com/Sokol111/ecommerce-product-query-service/internal/infrastructure/inbound/http"
+	internalconnect "github.com/Sokol111/ecommerce-product-query-service/internal/infrastructure/inbound/connect"
 	"github.com/Sokol111/ecommerce-product-query-service/internal/infrastructure/inbound/kafka"
 	"github.com/Sokol111/ecommerce-product-query-service/internal/infrastructure/outbound/mongo"
-	"github.com/Sokol111/ecommerce-tenant-service-api/tenantevents"
+	tenant_api_client "github.com/Sokol111/ecommerce-tenant-service-api/pkg/client"
+	tenant_api_consumer "github.com/Sokol111/ecommerce-tenant-service-api/pkg/consumer"
+	tenant_api_provider "github.com/Sokol111/ecommerce-tenant-service-api/pkg/provider"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 )
@@ -27,7 +28,7 @@ var AppModules = fx.Options(
 	// Commons
 	commons_core.NewCoreModule(),
 	commons_persistence.NewPersistenceModule(),
-	commons_http.NewHTTPModule(),
+	commons_http.NewHTTPModule(commons_http.WithH2C()),
 	commons_observability.NewObservabilityModule(),
 	commons_messaging.NewMessagingModule(),
 	commons_validation.NewModule(),
@@ -37,15 +38,17 @@ var AppModules = fx.Options(
 
 	// Tenant
 	tenant.NewModule(tenant.WithMigrations()),
-	tenantevents.Module(),
-
-	httpapi.ServerModule(),
+	tenant_api_consumer.Module(),
+	tenant_api_provider.Module(),
+	tenant_api_client.Module(),
 
 	// Application
 	mongo.Module(),
 	application.Module(),
 	kafka.Module(),
-	http.Module(),
+
+	// Connect (gRPC/Connect-RPC)
+	internalconnect.Module(),
 )
 
 func main() {

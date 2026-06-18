@@ -5,13 +5,11 @@ import (
 
 	commons_core "github.com/Sokol111/ecommerce-commons/pkg/core"
 	commons_http "github.com/Sokol111/ecommerce-commons/pkg/http"
-	httpclient "github.com/Sokol111/ecommerce-commons/pkg/http/client"
 	commons_messaging "github.com/Sokol111/ecommerce-commons/pkg/messaging"
 	commons_observability "github.com/Sokol111/ecommerce-commons/pkg/observability"
 	commons_persistence "github.com/Sokol111/ecommerce-commons/pkg/persistence"
 	commons_token "github.com/Sokol111/ecommerce-commons/pkg/security/token"
 	commons_validation "github.com/Sokol111/ecommerce-commons/pkg/security/validation"
-	commons_swaggerui "github.com/Sokol111/ecommerce-commons/pkg/swaggerui"
 	"github.com/Sokol111/ecommerce-commons/pkg/tenant"
 	"github.com/Sokol111/ecommerce-product-query-service/internal/application"
 	internalconnect "github.com/Sokol111/ecommerce-product-query-service/internal/infrastructure/inbound/connect"
@@ -33,8 +31,6 @@ var AppModules = fx.Options(
 	commons_messaging.NewMessagingModule(),
 	commons_validation.NewModule(),
 	commons_token.NewModule(),
-	commons_swaggerui.NewSwaggerModule(),
-	httpclient.RegistryModule(),
 
 	// Tenant
 	tenant.NewModule(tenant.WithMigrations()),

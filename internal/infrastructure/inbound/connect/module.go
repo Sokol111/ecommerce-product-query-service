@@ -48,12 +48,16 @@ func registerConnectRoutes(
 }
 
 // provideProcedurePermissions maps each product query RPC to required permissions.
-// Empty slice means authenticated users with any (or no) specific permissions can call the procedure.
+//
+// Permission semantics:
+//   - nil         → public endpoint, no authentication required
+//   - []string{}  → authenticated, no specific permissions required
+//   - []string{…} → authenticated and must hold at least one of the listed permissions
 func provideProcedurePermissions() validation.ProcedurePermissions {
 	return validation.ProcedurePermissions{
-		productqueryv1connect.ProductQueryServiceGetProductByIdProcedure:    {},
-		productqueryv1connect.ProductQueryServiceGetRandomProductsProcedure: {},
-		productqueryv1connect.ProductQueryServiceGetProductListProcedure:    {},
-		productqueryv1connect.ProductQueryServiceGetProductFacetsProcedure:  {},
+		productqueryv1connect.ProductQueryServiceGetProductByIdProcedure:    nil,
+		productqueryv1connect.ProductQueryServiceGetRandomProductsProcedure: nil,
+		productqueryv1connect.ProductQueryServiceGetProductListProcedure:    nil,
+		productqueryv1connect.ProductQueryServiceGetProductFacetsProcedure:  nil,
 	}
 }
